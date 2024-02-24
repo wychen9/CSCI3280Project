@@ -1,8 +1,8 @@
-Github repository for CSI3280 Project: Peer-to-peer voice chat system
+# Github repository for CSI3280 Project: Peer-to-peer voice chat system
 
 Language: Python
 
-Basic Requirements: Phase I (30%)
+## Basic Requirements: Phase I (30%)
 * GUI (SHEN Zixuan)
 * Sound recording & saving (WEI Youlin)
 * Sound playback with speed control (JIA Tongxi)
@@ -13,8 +13,8 @@ Deadline: Feb 29th, 2024
 * A video demonstration, named CSCI3280GroupXProjectDemo.mp4
 * Compressed folder of source codes, named CSCI3280GroupXProjectCode_1.zip
 
-Basic Requirements: Phase II(30%)
+## Basic Requirements: Phase II(30%)
 
-Enhanced Features (30%)
+## Enhanced Features (30%)
 
-Demonstration & Report(10%)
+## Demonstration & Report(10%)
