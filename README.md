@@ -1,4 +1,4 @@
-# Github repository for CSI3280 Project: Peer-to-peer voice chat system
+# Peer-to-peer voice chat system
 
 Language: Python
 
