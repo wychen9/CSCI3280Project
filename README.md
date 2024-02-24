@@ -1,5 +1,13 @@
 # Peer-to-peer voice chat system
 
+Group 3
+|Name|SID|
+|---|---|
+|SHEN Zixuan|1155157261|
+|WEI Youlin|1155157186|
+|JIA Tongxi|1155173879|
+|CHEN Weiyu|1155141421|
+
 Language: Python
 
 ## Basic Requirements: Phase I (30%)
