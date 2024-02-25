@@ -4,17 +4,28 @@ from tkinter import ttk
 
 click = 0
 isPlaying = False
+audioLength = 100
 
 root = tk.Tk()
 root.title("Video Recorder")
 root.geometry("1080x720")
-root.minsize(800, 400)
+root.resizable(width=False, height=False)
 
 # import images
 modifyImage = PhotoImage(file="images/Modify.PNG")
 startImage = PhotoImage(file="images/Start.PNG")
 pauseImage = PhotoImage(file="images/Pause.PNG")
 replaceImage = PhotoImage(file="images/Replace.PNG")
+
+# set style
+style = ttk.Style(root)
+style.theme_use("default")
+style.configure("TCombobox", foreground="#000000", background="BFBFBF")
+
+# define functions
+def on_combobox_select(event):
+    # selected_value = speedCombo.get()
+    root.after(0, lambda: speedCombo.selection_clear())
 
 def DISABLED(event):
     print("click")
@@ -32,15 +43,31 @@ def StartOrPauseChange(event):
         print("stopping")
     click += 1
 
-# set style
-style = ttk.Style(root)
-style.theme_use("default")
-style.configure("TCombobox", foreground="#000000", background="BFBFBF")
+def moveOnClick(event):
+    global curX, processCanvas, processCircle
+    processCanvas.tag_raise(processCircle)
+    curX= event.x 
 
-# define functions
-def on_combobox_select(event):
-    # selected_value = speedCombo.get()
-    root.after(0, lambda: speedCombo.selection_clear())
+def moveOnDrag(event):
+    global curX, processCanvas, processCircle, curVar
+    pos = processCanvas.coords(processCircle)
+    nextPos = pos[0] + event.x - curX
+    if nextPos < 0:
+        processCanvas.move(processCircle, -pos[0], 0)
+        curX = 0
+    elif nextPos > 910:
+        processCanvas.move(processCircle, 910-pos[0], 0)
+        curX = 910
+    else:
+        processCanvas.move(processCircle, event.x-curX, 0)
+        curX = event.x
+    curVar.set(setTime(int(curX/910*audioLength)))
+
+def setTime(length):
+    minite = length // 60
+    second = length % 60
+    str = "{:02d}".format(minite)+":"+"{:02d}".format(second)
+    return str
 
 # create framework
 mainFrame = tk.Frame(root)
@@ -73,7 +100,7 @@ optionMidFrame = tk.Frame(optionFrame, bg="#A6A6A6")
 startOrPauseCanvas = tk.Canvas(optionMidFrame, width=100, height=100, bg="#A6A6A6", borderwidth=0, highlightthickness=0)
 startOrPauseButton = startOrPauseCanvas.create_image(50, 50, image=startImage)
 startOrPauseCanvas.tag_bind(startOrPauseButton, "<Button-1>", StartOrPauseChange)
-# startOrPauseButton = tk.Button(optionMidFrame, width=10, height=2, text="Start", bg="#FFFFFF", fg = "#C00000", command=DISABLED)
+
 speedVar = ["x 0.5", "x 1.0", "x 2.0"]
 speedCombo = ttk.Combobox(optionFrame, width=4, values=speedVar, state="readonly", style="TCombobox")
 speedCombo.set("x 1.0")
@@ -87,17 +114,31 @@ replaceCanvas.tag_bind(replaceButton, "<Button-1>", DISABLED)
 modifyCanvas.pack(side="left", padx=80, pady=5)
 optionMidFrame.pack(side="left", pady=0, expand=True, fill=tk.Y)
 startOrPauseCanvas.pack(pady=0)
-speedCombo.pack(side="left", padx=0, pady=0)
+# speedCombo.pack(side="left", padx=0, pady=0)
 replaceCanvas.pack(side="right", padx=80, pady=5)
 
 # create scale - statusFrame
-processBar = tk.Scale(statusFrame,length=100, orient="horizontal", showvalue = 0, command=DISABLED)
-processBar.pack(pady = 20, fill="x")
+curVar = tk.StringVar()
+curTime = tk.Label(statusFrame, textvariable=curVar, bg="#BFBFBF", fg="#000000", font=("Arial", 12), width=10, height=20)
+endVar = tk.StringVar()
+endTime = tk.Label(statusFrame, textvariable=endVar, bg="#BFBFBF", fg="#000000", font=("Arial", 12), width=10, height=20)
+curVar.set("00:00")
+endVar.set(setTime(audioLength))
+
+processCanvas = tk.Canvas(statusFrame, width=925, borderwidth=0, bg="#BFBFBF", highlightthickness=0)
+processLine = processCanvas.create_line(5, 25, 920, 25, width=4)
+processCircle = processCanvas.create_oval(0, 20, 10, 30, fill="#C00000")
+processCanvas.tag_bind(processCircle, "<Button-1>", moveOnClick)
+processCanvas.tag_bind(processCircle, "<B1-Motion>", moveOnDrag)
+
+# set scale - statusFrame
+curTime.pack(side="left", padx=0, pady=20)
+endTime.pack(side="right", padx=0, pady=20)
+processCanvas.pack(pady=0)
 
 # create button - audioFrame
 newButton = tk.Button(audioFrame, width=10, height=2, text="Create New", bg="#FFFFFF", fg="#C00000", command=DISABLED)
 
 # set button - audioFrame
 newButton.pack(side=tk.TOP, fill=tk.X, padx=20, pady=10)
-
 root.mainloop()
