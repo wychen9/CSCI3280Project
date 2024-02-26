@@ -74,18 +74,31 @@ def setTime(length):
     str = "{:02d}".format(minite)+":"+"{:02d}".format(second)
     return str
 
+def labelOnClick(event):
+    global endVar
+    for i in recordingsList:
+        i.label.config(bg="#E3B00B")
+    event.widget.config(bg="#FFE699")
+    print(labelTag[event.widget])
+    endVar.set(setTime(recordingsList[labelTag[event.widget]].length))
+
+
 def createNew():
     global index, allFrame, recordingCanvas
     tagVar = tk.StringVar()
-    newLabel = tk.Label(allFrame, textvariable=tagVar, width=40, height=5, bg="#FFE699", relief="groove", \
+    newLabel = tk.Label(allFrame, textvariable=tagVar, width=40, height=5, bg="#FFE699", \
                         anchor="w", justify=tk.LEFT)
     record = recording.Recording("New Recording "+str(index), datetime.datetime.now(), 0, newLabel, None)
     tmpStr = "   "+ record.name + "\n\n   " + record.createTime.strftime("%Y-%m-%d %H:%M:%S")+"            " + \
                         setTime(record.length)
     tagVar.set(tmpStr)
     newLabel.pack(side=tk.BOTTOM, padx=0, pady=3)
-    # newLabel.pack(anchor="nw", padx=0, pady=3)
+    newLabel.bind("<Button-1>", labelOnClick)
+    if len(recordingsList) >= 1:
+        for i in recordingsList:
+            i.label.config(bg="#E3B00B")
     recordingsList.append(record)
+    labelTag[newLabel] = index
     recordingCanvas.update_idletasks() 
     recordingCanvas.config(scrollregion=recordingCanvas.bbox("all"))
     index += 1
@@ -94,7 +107,7 @@ def createNew():
 # create framework
 mainFrame = tk.Frame(root)
 pageFrame = tk.Frame(mainFrame, width=1080, height=570, bg="#FFFFFF", borderwidth=0, highlightthickness=0)
-audioFrame = tk.Frame(pageFrame, width=400, height=450, bg="#FFD966", borderwidth=0, highlightthickness=0)
+audioFrame = tk.Frame(pageFrame, width=300, height=450, bg="#FFD966", borderwidth=0, highlightthickness=0)
 visualFrame = tk.Frame(pageFrame, width=2000, height=450, bg="#F2F2F2", borderwidth=0, highlightthickness=0)
 statusFrame = tk.Frame(mainFrame, width=1080, height=50, bg="#BFBFBF", borderwidth=0, highlightthickness=0)
 optionFrame = tk.Frame(mainFrame, width=1080, height=100, bg="#A6A6A6", borderwidth=0, highlightthickness=0)
@@ -160,10 +173,10 @@ processCanvas.pack(pady=0)
 
 # create scorll bar - audioFrame
 newButton = tk.Button(audioFrame, width=10, height=2, text="Create New", bg="#FFFFFF", fg="#C00000", command=createNew)
-recordingFrame = tk.Frame(audioFrame, width=500, height=600, bg="#FFD966")
-recordingCanvas = tk.Canvas(recordingFrame, width=300, height=800, bg="#FFD966", borderwidth=0, highlightthickness=0)
+recordingFrame = tk.Frame(audioFrame, width=250, height=600, bg="#FFD966")
+recordingCanvas = tk.Canvas(recordingFrame, width=250, height=800, bg="#FFD966", borderwidth=0, highlightthickness=0)
 recordingScorll = tk.Scrollbar(recordingFrame, orient="vertical", command=recordingCanvas.yview)
-scorlledFrame = tk.Frame(recordingCanvas, width=300, height=600, bg="#FFD966")
+scorlledFrame = tk.Frame(recordingCanvas, width=250, height=600, bg="#FFD966")
 recordingCanvas.create_window((0, 0), window=scorlledFrame, anchor="nw")
 recordingCanvas.configure(yscrollcommand=recordingScorll.set)
 allFrame = scorlledFrame
