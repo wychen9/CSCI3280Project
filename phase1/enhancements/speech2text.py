@@ -11,7 +11,7 @@ def speech2text(path):
     return(r.recognize_google(audio))
 
 ## Sample usage
-# filePath = "./audioFile/harvard.wav"
+# filePath = "./audioFile/harvard_list1.wav"
 # ret = speech2text(filePath)
 # print(ret)
 # print(type(ret))
