@@ -1,3 +1,5 @@
+import recording
+import datetime
 import tkinter as tk
 from tkinter import PhotoImage
 from tkinter import ttk
@@ -5,6 +7,9 @@ from tkinter import ttk
 click = 0
 isPlaying = False
 audioLength = 100
+index = 0
+labelTag = {}
+recordingsList = []
 
 root = tk.Tk()
 root.title("Video Recorder")
@@ -68,6 +73,23 @@ def setTime(length):
     second = length % 60
     str = "{:02d}".format(minite)+":"+"{:02d}".format(second)
     return str
+
+def createNew():
+    global index, allFrame, recordingCanvas
+    tagVar = tk.StringVar()
+    newLabel = tk.Label(allFrame, textvariable=tagVar, width=40, height=5, bg="#FFE699", relief="groove", \
+                        anchor="w", justify=tk.LEFT)
+    record = recording.Recording("New Recording "+str(index), datetime.datetime.now(), 0, newLabel, None)
+    tmpStr = "   "+ record.name + "\n\n   " + record.createTime.strftime("%Y-%m-%d %H:%M:%S")+"            " + \
+                        setTime(record.length)
+    tagVar.set(tmpStr)
+    newLabel.pack(side=tk.BOTTOM, padx=0, pady=3)
+    # newLabel.pack(anchor="nw", padx=0, pady=3)
+    recordingsList.append(record)
+    recordingCanvas.update_idletasks() 
+    recordingCanvas.config(scrollregion=recordingCanvas.bbox("all"))
+    index += 1
+    return
 
 # create framework
 mainFrame = tk.Frame(root)
@@ -136,9 +158,20 @@ curTime.pack(side="left", padx=0, pady=20)
 endTime.pack(side="right", padx=0, pady=20)
 processCanvas.pack(pady=0)
 
-# create button - audioFrame
-newButton = tk.Button(audioFrame, width=10, height=2, text="Create New", bg="#FFFFFF", fg="#C00000", command=DISABLED)
+# create scorll bar - audioFrame
+newButton = tk.Button(audioFrame, width=10, height=2, text="Create New", bg="#FFFFFF", fg="#C00000", command=createNew)
+recordingFrame = tk.Frame(audioFrame, width=500, height=600, bg="#FFD966")
+recordingCanvas = tk.Canvas(recordingFrame, width=300, height=800, bg="#FFD966", borderwidth=0, highlightthickness=0)
+recordingScorll = tk.Scrollbar(recordingFrame, orient="vertical", command=recordingCanvas.yview)
+scorlledFrame = tk.Frame(recordingCanvas, width=300, height=600, bg="#FFD966")
+recordingCanvas.create_window((0, 0), window=scorlledFrame, anchor="nw")
+recordingCanvas.configure(yscrollcommand=recordingScorll.set)
+allFrame = scorlledFrame
 
 # set button - audioFrame
 newButton.pack(side=tk.TOP, fill=tk.X, padx=20, pady=10)
+recordingFrame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=20, pady=10)
+recordingCanvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+recordingScorll.pack(side=tk.RIGHT, fill=tk.Y)
+
 root.mainloop()
