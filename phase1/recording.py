@@ -1,7 +1,7 @@
 class Recording():
-    def __init__(self, name, creatTime, length, label, path):
+    def __init__(self, name, createTime, length, label, path):
         self.name = name
-        self.createTime = creatTime
+        self.createTime = createTime
         self.length = length
         self.label = label
         self.path = path
