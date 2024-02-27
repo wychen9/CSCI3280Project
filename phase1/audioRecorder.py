@@ -2,6 +2,7 @@ import pyaudio
 import wave
 import struct
 from datetime import datetime
+import time
 
 class AudioRecorder:
     def __init__(self, format=pyaudio.paInt16, channels=1, rate=44100, chunk=1024):
@@ -36,35 +37,37 @@ class AudioRecorder:
         return riff_chunk + fmt_chunk + data_chunk_header
 
     def start_recording(self):
-        self.audio = pyaudio.PyAudio()
-        self.stream = self.audio.open(format=self.format, channels=self.channels,
-                                      rate=self.rate, input=True,
-                                      frames_per_buffer=self.chunk)
-        self.is_recording = True
-        self.frames.clear()
-        print("Recording started...")
+          self.audio = pyaudio.PyAudio()
+          self.stream = self.audio.open(format=self.format, channels=self.channels,
+                                        rate=self.rate, input=True,
+                                        frames_per_buffer=self.chunk,
+                                        stream_callback=self.callback)  
+          self.is_recording = True
+          self.frames.clear()
+          self.stream.start_stream()  
+          print("Recording started...")
 
+    def callback(self, in_data, frame_count, time_info, status):
+        if self.is_recording:
+            self.frames.append(in_data)
+            return (in_data, pyaudio.paContinue)
+        else:
+            return (None, pyaudio.paComplete)
+        
     def stop_recording(self):
         if self.is_recording:
-            print("Recording stopped.")
+            self.is_recording = False
             self.stream.stop_stream()
+            while self.stream.is_active():
+                pass  # 等待流自然停止
             self.stream.close()
             self.audio.terminate()
-            self.is_recording = False
+            print("Recording stopped.")
             return self.save_recording()
         else:
             print("Recording was not active.")
             return None
 
-    def record(self):
-        if self.is_recording:
-            try:
-                data = self.stream.read(self.chunk, exception_on_overflow=False)  
-                if data:
-                    self.frames.append(data)
-                    print(f"Captured {len(data)} bytes of data.") 
-            except IOError as e:
-                print(f"Error recording: {e}")
 
     def get_total_recording_length(self):
         total_bytes = sum(len(frame) for frame in self.frames)
@@ -85,22 +88,13 @@ class AudioRecorder:
                 
         print(f"File saved as {wave_output_filename}")
         return wave_output_filename
-  
 '''
 if __name__ == "__main__":
     recorder = AudioRecorder()
+    print("start recording")
+    time.sleep(3)
     recorder.start_recording()
-    print("录音开始。按 Ctrl+C 停止录音...")
-    try:
-        while recorder.is_recording:
-            recorder.record()
-    except KeyboardInterrupt:
-        print("\n录音被用户中断。")
-    finally:
-        filename = recorder.stop_recording()
-        print(recorder.get_total_recording_length())
-        if filename:
-            print(f"录音已保存到 {filename}")
-        else:
-            print("录音未能保存。")
+    time.sleep(5)
+    recorder.stop_recording()
+    print("end recording")
 '''
