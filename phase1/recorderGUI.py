@@ -89,7 +89,7 @@ def StartOrPauseChange(event):
         if isRecording:
             # ----function----
             curRecording.path = recorder.stop_recording()
-            curRecording.length = recorder.get_total_recording_length()
+            curRecording.length = int(recorder.get_total_recording_length())
             print(recorder.get_total_recording_length())
             audioLength = curRecording.length
             # ----function----
@@ -104,7 +104,7 @@ def ModifyOrEnsureChange(event):
         modify()
     else:
         # ----function----
-        audioTrim(setNumber(curVar.get()), setNumber(endVar.get()), curRecording)
+        audioTrim.audioTrim(setNumber(curVar.get()), setNumber(endVar.get()), curRecording)
         # ----function----
         modifyCanvas.itemconfig(modifyButton, image=modifyImage)
         curRecording.length = setNumber(endVar.get()) - setNumber(curVar.get())
@@ -135,7 +135,7 @@ def ReplaceOrEnsureChange(event):
     else:
         # ----function----
         tmpPath = recorder.stop_recording()
-        tempRecording = recording("tmp", datetime.datetime.now(), setNumber(curVar.get())-replaceStart, None, tmpPath)
+        tempRecording = recording.Recording("tmp", datetime.datetime.now(), setNumber(curVar.get())-replaceStart, None, tmpPath)
         audioTrim.overwrite(replaceStart, setNumber(curVar.get()), curRecording, tempRecording)
         # ----function----
         isReplacing = False
