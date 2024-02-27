@@ -9,6 +9,7 @@ FORMAT = pyaudio.paInt16
 CHANNELS = 1
 SAMPLE_WIDTH = pyaudio.PyAudio().get_sample_size(FORMAT)
 FRAME_RATE = 44100
+# FRAME_RATE = 8000 # for samples in audio file
 CHUNK = 1024
 RECORD_SECONDS = 5
 
