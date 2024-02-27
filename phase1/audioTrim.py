@@ -4,36 +4,68 @@
 import wave
 import pyaudio
 import os
-from main import FORMAT, CHANNELS, SAMPLE_WIDTH,FRAME_RATE,CHUNK
+from recording import Recording
+from main import FORMAT, CHANNELS,FRAME_RATE,CHUNK
 
-def audioTrim(start, end, wav, path):
+def audioTrim(start, end, wavRecording):
     # start - new start time(second) of the audio
     # end - new end time(second) of the audio
-    # wav - original wav file
+    # wavRecording - Recording object of original wav file
     #
-    # new audio file will overwrite the original one
-    channelCnt = wav.getnchannels()
-    sampleWidth = wav.getsampwidth()
-    frameRate = wav.getframerate()
-    wav.setpos(int(start*frameRate))
-    newAudio = wav.readframes(int(end+1-start)*frameRate)
+    # no return, new audio file will overwrite the original one
+    with wave.open(wavRecording.path, 'rb') as wav:
+        channelCnt = wav.getnchannels()
+        sampleWidth = wav.getsampwidth()
+        frameRate = wav.getframerate()
+        wav.setpos(int(start*frameRate))
+        newAudio = wav.readframes(int(end+1-start)*frameRate)
 
-    with wave.open(path,'wb') as output:
+    with wave.open(wavRecording.path,'wb') as output:
         output.setnchannels(channelCnt)
         output.setsampwidth(sampleWidth)
         output.setframerate(frameRate)
         output.setnframes(int(len(newAudio)/sampleWidth))
         output.writeframes(newAudio)
 
-def overwrite(start, end, wav, path):
+def overwrite(start, end, wavRecording, tempRecording):
     # start - start time(second) of the target section that will be overwritten
     # end -  end time(second) of the target section that will be overwritten
-    # wav - path of the original audio file
-    # newSec - audio section that will be used to substitute the original one
+    # wavRecording - Recording object of the original audio file
+    # tempRecording - Recording object of the audio segment which will be used to substitute the original segment
     #
     # return - none
     # new audio file will overwrite the original one
+    
+    with wave.open(wavRecording.path, 'rb') as wav:
+        channelCnt = wav.getnchannels()
+        sampleWidth = wav.getsampwidth()
+        frameRate = wav.getframerate()
+        wav.setpos(0)
+        head = wav.readframes(int(start*frameRate))
 
+        with wave.open(tempRecording.path, 'rb') as newSec:
+            if(newSec.getnframes()>wav.getnframes()-int(start*frameRate)):
+                tail = None
+            else:
+                wav.setpos(int(end*frameRate))
+                tail = wav.readframes(int(wav.getnframes() - end*frameRate))
+            middle = newSec.readframes(newSec.getnframes())
+
+    with wave.open(wavRecording.path,'wb') as output:
+        output.setnchannels(channelCnt)
+        output.setsampwidth(sampleWidth)
+        output.setframerate(frameRate)
+        if(tail!=None):
+            output.setnframes(int(len(head)/sampleWidth)+int(len(middle)/sampleWidth)+int(len(tail)/sampleWidth))
+        else:
+            output.setnframes(int(len(head)/sampleWidth)+int(len(middle)/sampleWidth))
+
+        output.writeframes(head)
+        output.writeframes(middle)
+        if(tail!=None): output.writeframes(tail)
+    os.remove(tempRecording.path)
+
+def _tempRecord(start, end, wavRecording):
     duration = end+1 - start
     # Initialize the audio stream
     audio = pyaudio.PyAudio()
@@ -51,6 +83,7 @@ def overwrite(start, end, wav, path):
     stream.close()
     audio.terminate()
     
+    wav = wave.open(wavRecording.path, 'rb')
     channelCnt = wav.getnchannels()
     sampleWidth = wav.getsampwidth()
     frameRate = wav.getframerate()
@@ -63,38 +96,11 @@ def overwrite(start, end, wav, path):
         tempOutput.setframerate(frameRate)
         for frame in frames:
             tempOutput.writeframes(frame)
+    return Recording('temp', '','','','./audioFile/temp.wav')
 
-    print("original frames: " + str(wav.getnframes()))
-
-    newSec = wave.open(tempPath, 'rb')
-    print("new section frames: " + str(newSec.getnframes()))
-    frameRate = wav.getframerate()
-
-    wav.setpos(0)
-    head = wav.readframes(int(start*frameRate))
-    
-    if(newSec.getnframes()>wav.getnframes()-int(start*frameRate)):
-        tail = None
-    else:
-        wav.setpos(int(end*frameRate))
-        tail = wav.readframes(int(wav.getnframes() - end*frameRate))
-
-    middle = newSec.readframes(newSec.getnframes())
-    with wave.open(path,'wb') as output:
-        output.setnchannels(channelCnt)
-        output.setsampwidth(sampleWidth)
-        output.setframerate(frameRate)
-        if(tail!=None):
-            output.setnframes(int(len(head)/sampleWidth)+int(len(middle)/sampleWidth)+int(len(tail)/sampleWidth))
-        else:
-            output.setnframes(int(len(head)/sampleWidth)+int(len(middle)/sampleWidth))
-
-        output.writeframes(head)
-        output.writeframes(middle)
-        if(tail!=None): output.writeframes(tail)
-    os.remove(tempPath)
-
-# # Sample usage:
-# with wave.open('./audioFile/harvard_list1.wav','rb') as inputWav:
-#     audioTrim(1,5,inputWav,'./audioFile/harvard1_trim.wav')
-#     overwrite(3,5,inputWav,'./audioFile/harvard1_overwrite.wav')
+## Sample usage:
+# wavRecording1 = Recording('list1', '','','','./audioFile/harvard_list1.wav')
+# wavRecording2 = Recording('list2', '','','','./audioFile/harvard_list2.wav')
+# tempRecording = _tempRecord(3, 5, wavRecording2)
+# audioTrim(1,5,wavRecording1)
+# overwrite(3,5,wavRecording2,tempRecording)
