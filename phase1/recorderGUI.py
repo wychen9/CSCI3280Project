@@ -88,8 +88,8 @@ def StartOrPauseChange(event):
         isPlaying = False
         if isRecording:
             # ----function----
-            curRecording.length = recorder.get_total_recording_length()
             curRecording.path = recorder.stop_recording()
+            curRecording.length = recorder.get_total_recording_length()
             print(recorder.get_total_recording_length())
             audioLength = curRecording.length
             # ----function----
