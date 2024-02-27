@@ -1,4 +1,9 @@
+# Install:
+#   python3 -m pip install SpeechRecognition
+#   brew install flac (for mac), 
+
 import recording
+import enhancements.speech2text as st
 import datetime
 import tkinter as tk
 from tkinter import PhotoImage
@@ -9,8 +14,13 @@ click_modify = 0
 click_replace = 0
 isPlaying = False
 isReplacing = False
-audioLength = 100
+isRecording = False
 tmpLength = 0
+
+# curRecording = recording.Recording()
+curRecording = recording.Recording("test", datetime.datetime.now(), 100, None, "audioFile/harvard.wav")
+audioLength = curRecording.length
+curLabel = curRecording.label
 
 labelTag = {}
 recordingsList = []
@@ -32,10 +42,16 @@ def DISABLED(event):
     print("click")
     return 
 
+def recordNew():
+    if isRecording:
+        endVar.set(setTime(setNumber(endVar.get())+1))
+        processCanvas.after(1000, recordNew)
+    return
+
 def move():
     global isPlaying, click, curVar, tmpLength
     if processCanvas.coords(processCircle)[0] <= 910 and (isPlaying or isReplacing):
-        processCanvas.move(processCircle, float(910/(audioLength*10)), 0)
+        processCanvas.move(processCircle, float(910/(audioLength*10))*float(speedVar.get()), 0)
         curVar.set(setTime(int(processCanvas.coords(processCircle)[0]/910*audioLength)))
         tmpLength = processCanvas.coords(processCircle)[0]
         processCanvas.after(100, move)
@@ -44,7 +60,7 @@ def move():
             tmp = int(tmpLength/910*audioLength)
             curVar.set(setTime(tmp))
             endVar.set(setTime(tmp))
-            tmpLength += float(910/(audioLength*10))
+            tmpLength += float(910/(audioLength*10)*float(speedVar.get()))
             processCanvas.after(100, move)
         else:
             click += 1
@@ -52,27 +68,44 @@ def move():
             isPlaying = False
 
 def StartOrPauseChange(event):
-    global click, isPlaying
+    global click, isPlaying, isRecording
     if click % 2 == 0:
         if processCanvas.coords(processCircle)[0] > 910:
             processCanvas.coords(processCircle, 0, 20, 10, 30)
         startOrPauseCanvas.itemconfig(startOrPauseButton, image=pauseImage)
         isPlaying = True
-        processCanvas.after(0, move)
+        if audioLength > 0:
+            processCanvas.after(0, move)
+        else:
+            isRecording = True
+            processCanvas.after(0, recordNew)
     else:
         startOrPauseCanvas.itemconfig(startOrPauseButton, image=startImage)
         isPlaying = False
+        if isRecording:
+            # import backend values
+            # curRecording.length =
+            # audioLength = curRecording.length
+            isRecording = False
     click += 1
 
 def ModifyOrEnsureChange(event):
-    global click_modify, processCircle, curVar, endVar, audioLength, isModifying
+    global click_modify, processCircle, curVar, endVar, audioLength, isModifying, tagVar
     if click_modify % 2 == 0:
+        print("modify")
         modifyCanvas.itemconfig(modifyButton, image=ensureImage)
         modify()
     else:
+        print("ensure")
         modifyCanvas.itemconfig(modifyButton, image=modifyImage)
+        curRecording.length = setNumber(endVar.get()) - setNumber(curVar.get())
+        curRecording.createTime = datetime.datetime.now()
+        tmpStr = "   "+ curRecording.name + "\n\n   " + curRecording.createTime.strftime("%Y-%m-%d %H:%M:%S")+"            " + \
+                        setTime(curRecording.length)
+        tagVar.set(tmpStr)
         curVar.set(setTime(0))
-        audioLength = int((processCanvas.coords(endCircle)[0]-processCanvas.coords(startCircle)[0])/910*audioLength)
+        # audioLength = int((processCanvas.coords(endCircle)[0]-processCanvas.coords(startCircle)[0])/910*audioLength)
+        audioLength = curRecording.length
         endVar.set(setTime(audioLength))
         processCanvas.delete(startCircle)
         processCanvas.delete(endCircle)
@@ -82,20 +115,19 @@ def ModifyOrEnsureChange(event):
     click_modify += 1
 
 def ReplaceOrEnsureChange(event):
-    global click_replace, isReplacing, curVar, audioLength, isPlaying, click
+    global click_replace, isReplacing, curVar, audioLength, isPlaying, click, tmpLength
     if click_replace % 2 == 0:
         replaceCanvas.itemconfig(replaceButton, image=ensureImage)
-        if isPlaying:
-            startOrPauseCanvas.itemconfig(startOrPauseButton, image=startImage)
-            isPlaying = False
-            click += 1
+        speedVar.set("1.0")
         isReplacing = True
         replace()
     else:
         isReplacing = False
-        audioLength = int(tmpLength/910*audioLength)
+        if tmpLength > 910:
+            audioLength = int(audioLength + (tmpLength - 910)/910*audioLength)
         replaceCanvas.itemconfig(modifyButton, image=replaceImage)
         processCanvas.delete(replaceCircle)
+        tmpLength = 0
     click_replace += 1
 
 def modify():
@@ -142,25 +174,32 @@ def setTime(length):
     str = "{:02d}".format(minite)+":"+"{:02d}".format(second)
     return str
 
+def setNumber(str):
+    return 60*int(str[:2])+int(str[3:])
+ 
 def labelOnClick(event):
-    global curVar, endVar, audioLength, processCanvas, processCircle
+    global curVar, endVar, audioLength, processCanvas, processCircle, curLabel
     for i in recordingsList:
         i.label.config(bg="#E3B00B")
     event.widget.config(bg="#FFE699")
     print(labelTag[event.widget])
-    audioLength = recordingsList[labelTag[event.widget]].length
+    curRecording = recordingsList[labelTag[event.widget]]
+    audioLength = curRecording.length
+    curLabel = curRecording.label
     endVar.set(setTime(recordingsList[labelTag[event.widget]].length))
     curVar.set(setTime(0))
     processCanvas.coords(processCircle, 0, 20, 10, 30)
+    textVar.set(st.speech2text(curRecording.path))
 
 def createNew():
-    global index, allFrame, recordingCanvas
+    global index, allFrame, recordingCanvas, curRecording, audioLength, curLabel, tagVar
     tagVar = tk.StringVar()
     newLabel = tk.Label(allFrame, textvariable=tagVar, width=40, height=5, bg="#FFE699", \
                         anchor="w", justify=tk.LEFT)
     record = recording.Recording("New Recording "+str(index), datetime.datetime.now(), 0, newLabel, None)
     tmpStr = "   "+ record.name + "\n\n   " + record.createTime.strftime("%Y-%m-%d %H:%M:%S")+"            " + \
                         setTime(record.length)
+    # record.path = 
     tagVar.set(tmpStr)
     newLabel.pack(side=tk.BOTTOM, padx=0, pady=3)
     newLabel.bind("<Button-1>", labelOnClick)
@@ -169,9 +208,24 @@ def createNew():
             i.label.config(bg="#E3B00B")
     recordingsList.append(record)
     labelTag[newLabel] = index
+    curVar.set(setTime(0))
+    endVar.set(setTime(0))
+    curRecording = record
+    audioLength = record.length
+    curLabel = newLabel
+
     recordingCanvas.update_idletasks() 
     recordingCanvas.config(scrollregion=recordingCanvas.bbox("all"))
     index += 1
+
+def text():
+    if tInt.get() == 1:
+        print("changing to text")
+        textVar.set(st.speech2text(curRecording.path))
+    else:
+        textVar.set("Hello! Welcome to Our Recorder :)")
+    textCanvas.update_idletasks() 
+    textCanvas.config(scrollregion=textCanvas.bbox("all"))
 
 # create framework
 mainFrame = tk.Frame(root)
@@ -251,12 +305,27 @@ recordingCanvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 recordingScorll.pack(side=tk.RIGHT, fill=tk.Y)
 
 # create button - visualFrame
-chooseFrame = tk.Frame(visualFrame, width=500, height=20, bg="#F2F2F2", borderwidth=0, highlightthickness=0)
-contentFrame = tk.Frame(chooseFrame, width=200, height=20, bg="#F2F2F2", borderwidth=0, highlightthickness=0)
-visualVar = tk.StringVar()
-textR = tk.Radiobutton(contentFrame, text="Text", variable=visualVar, value="Text", bg="#F2F2F2")
-imageR = tk.Radiobutton(contentFrame, text="Image", variable=visualVar, value="Image", bg="#F2F2F2")
-visualVar.set("Image")
+chooseFrame = tk.Frame(visualFrame, width=700, height=20, bg="#F2F2F2", borderwidth=0, highlightthickness=0)
+contentFrame = tk.Frame(visualFrame, width=700, height=400, bg="#F2F2F2", borderwidth=0, highlightthickness=0)
+visualFrame = tk.Frame(contentFrame, width=700, height=300, bg="white", borderwidth=0, highlightthickness=0)
+textFrame = tk.Frame(contentFrame, width=700, height=300, bg="white", borderwidth=0, highlightthickness=0)
+textScorll = tk.Scrollbar(textFrame)
+textCanvas = tk.Canvas(textFrame, width=700, height=1000, bg="white", borderwidth=0, highlightthickness=0, yscrollcommand=textScorll.set)
+textVar = tk.StringVar()
+textLabel = tk.Label(textCanvas, bg="white", textvariable=textVar, wraplength=500, borderwidth=0, highlightthickness=0, \
+                     anchor="nw", justify=tk.LEFT)
+textScorll.config(command=textCanvas.yview)
+textWindow = textCanvas.create_window(0, 0, anchor='nw', window=textLabel)
+textVar.set("Hello! Welcome to Our Recorder :)")
+
+textCanvas.update_idletasks() 
+textCanvas.config(scrollregion=textCanvas.bbox("all"))
+
+tvFrame = tk.Frame(chooseFrame, width=200, height=20, bg="#F2F2F2", borderwidth=0, highlightthickness=0)
+tInt = tk.IntVar()
+vInt = tk.IntVar()
+tButton = tk.Checkbutton(tvFrame, text="Text", variable=tInt, bg="#F2F2F2", command=text)
+vButton = tk.Checkbutton(tvFrame, text="Image", variable=vInt, bg="#F2F2F2", command=DISABLED)
 
 speedFrame = tk.Frame(chooseFrame, width=300, height=20, bg="#F2F2F2", borderwidth=0, highlightthickness=0)
 speedVar = tk.StringVar()
@@ -267,12 +336,16 @@ speedVar.set("1.0")
 
 # set button - visualFrame
 chooseFrame.pack(side=tk.TOP, fill=tk.X)
-contentFrame.pack(side=tk.RIGHT, fill=tk.Y)
+contentFrame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 speedFrame.pack(side=tk.LEFT, fill=tk.Y)
+tvFrame.pack(side=tk.RIGHT, fill=tk.Y)
+tButton.pack(side=tk.LEFT, padx=5)
+vButton.pack(side=tk.LEFT, padx=5)
 fastR.pack(side=tk.RIGHT, padx=5)
 normalR.pack(side=tk.RIGHT, padx=5)
 slowR.pack(side=tk.RIGHT, padx=5)
-imageR.pack(side=tk.RIGHT, padx=5)
-textR.pack(side=tk.RIGHT, padx=5)
-
+visualFrame.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
+textFrame.pack(side=tk.TOP, fill=tk.BOTH, padx=5, pady=5)
+textScorll.pack(side=tk.RIGHT, fill=tk.Y)
+textCanvas.pack(side=tk.LEFT, fill=tk.BOTH)
 root.mainloop()
