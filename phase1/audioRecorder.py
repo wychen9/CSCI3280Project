@@ -58,13 +58,24 @@ class AudioRecorder:
 
     def record(self):
         if self.is_recording:
-            data = self.stream.read(self.chunk)
-            self.frames.append(data)
+            try:
+                data = self.stream.read(self.chunk, exception_on_overflow=False)  
+                if data:
+                    self.frames.append(data)
+                    print(f"Captured {len(data)} bytes of data.") 
+            except IOError as e:
+                print(f"Error recording: {e}")
 
+    def get_total_recording_length(self):
+        total_bytes = sum(len(frame) for frame in self.frames)
+        num_frames = sum(len(frame) for frame in self.frames) // (self.sample_width * self.channels)
+        total_seconds = num_frames / self.rate
+        return total_seconds
+    
     def save_recording(self):
         current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
         wave_output_filename = f"recording_{current_time}.wav"
-        num_frames = sum(len(frame) for frame in self.frames) // self.sample_width
+        num_frames = sum(len(frame) for frame in self.frames) // (self.sample_width * self.channels)
         wav_header = self.generate_wav_header(num_frames)
 
         with open(wave_output_filename, 'wb') as wf:
@@ -74,16 +85,7 @@ class AudioRecorder:
                 
         print(f"File saved as {wave_output_filename}")
         return wave_output_filename
-    def record(self):
-      if self.is_recording:
-          try:
-              data = self.stream.read(self.chunk, exception_on_overflow=False)  
-              if data:
-                  self.frames.append(data)
-                  print(f"Captured {len(data)} bytes of data.") 
-          except IOError as e:
-              print(f"Error recording: {e}")
-    
+  
 '''
 if __name__ == "__main__":
     recorder = AudioRecorder()
@@ -96,6 +98,7 @@ if __name__ == "__main__":
         print("\n录音被用户中断。")
     finally:
         filename = recorder.stop_recording()
+        print(recorder.get_total_recording_length())
         if filename:
             print(f"录音已保存到 {filename}")
         else:
