@@ -1,10 +1,13 @@
 # Install:
 #   python3 -m pip install SpeechRecognition
-#   brew install flac (for mac), 
+#   brew install flac (for mac)
+#   python3 -m pip install matplotlib
+#   python3 -m pip install simpleaudio
 
 import audioTrim
 import recording
 import audioRecorder
+import player_control as pc
 import enhancements.speech2text as st
 import datetime
 import tkinter as tk
@@ -76,8 +79,12 @@ def StartOrPauseChange(event):
         if processCanvas.coords(processCircle)[0] > 910:
             processCanvas.coords(processCircle, 0, 20, 10, 30)
         startOrPauseCanvas.itemconfig(startOrPauseButton, image=pauseImage)
-        isPlaying = True
         if audioLength > 0:
+            isPlaying = True
+            pc.control("load " + curRecording.path)
+            pc.control("speed " + speedVar.get())
+            pc.control("set " + str(setNumber(curVar.get())*100/curRecording.length))
+            pc.control("play")
             processCanvas.after(0, move)
         else:
             isRecording = True
@@ -85,7 +92,9 @@ def StartOrPauseChange(event):
             processCanvas.after(0, recordNew)
     else:
         startOrPauseCanvas.itemconfig(startOrPauseButton, image=startImage)
-        isPlaying = False
+        if isPlaying:
+            isPlaying = False
+            pc.control("pause")
         if isRecording:
             # ----function----
             curRecording.path = recorder.stop_recording()
@@ -243,7 +252,9 @@ def text():
     textCanvas.config(scrollregion=textCanvas.bbox("all"))
 
 def visual():
-    if tInt.get() == 1:
+    if vButton.cget("text") == "Image":
+        vButton.config(text="End")
+        
         print("visualizing audio")
         ## Sample usage
         # vis = Visualization(wavRecording, visualFrame) # need to create a new object first with Recording object and the target frame in GUI
@@ -347,9 +358,8 @@ textCanvas.config(scrollregion=textCanvas.bbox("all"))
 
 tvFrame = tk.Frame(chooseFrame, width=200, height=20, bg="#F2F2F2", borderwidth=0, highlightthickness=0)
 tInt = tk.IntVar()
-vInt = tk.IntVar()
 tButton = tk.Checkbutton(tvFrame, text="Text", variable=tInt, bg="#F2F2F2", command=text)
-vButton = tk.Checkbutton(tvFrame, text="Image", variable=vInt, bg="#F2F2F2", command=DISABLED)
+vButton = tk.Button(tvFrame, text="Image", bg="#F2F2F2", command=visual)
 
 speedFrame = tk.Frame(chooseFrame, width=300, height=20, bg="#F2F2F2", borderwidth=0, highlightthickness=0)
 speedVar = tk.StringVar()
