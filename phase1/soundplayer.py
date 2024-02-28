@@ -1,10 +1,9 @@
 import simpleaudio as sa
-#from pydub import AudioSegment
 import numpy as np
 import time
 from decoder import read_wav
 import threading
-#多声道？
+
 
 class AudioPlayer:
     def __init__(self, filename):
@@ -25,10 +24,10 @@ class AudioPlayer:
         self.progress_thread = None
         self.stop_progress_update = False
         self.last_progress = "00:00:00"
+        self.stop_index = len(self.waveData)/2
 
     #def play(self, start_index=None):
-    def play(self, start_percentage=0.0):
-        # 如果已经有一个线程在运行，先停止它
+    def play(self, start_percentage=0.0, stop_percentage=100.0):
         if self.thread is not None:
             self.stop_progress_update = True
             self.thread.join()
@@ -36,14 +35,13 @@ class AudioPlayer:
             self.play_obj.stop()
             self.play_obj = None
 
-        # 计算开始播放的样本索引
-        start_index = int(start_percentage * len(self.waveData) / 200)
+        start_index = int(start_percentage * len(self.waveData) / (100*self.nchannels))
+        stop_index = int(stop_percentage * len(self.waveData) / (100*self.nchannels))
 
-        # 计算开始播放的时间并设置为 self.elapsed_time_at_speed_change
-        start_seconds = start_percentage * self.total_length / (200)
+
+        start_seconds = start_percentage * self.total_length / (100 * self.nchannels)
         self.elapsed_time_at_speed_change = start_seconds
 
-        # 将开始播放的时间转换为 HH:MM:SS 格式并设置为 self.last_progress
         hours, remainder = divmod(int(start_seconds), 3600)
         minutes, seconds = divmod(remainder, 60)
         self.last_progress = "{:02}:{:02}:{:02}".format(hours, minutes, seconds)
@@ -53,9 +51,8 @@ class AudioPlayer:
         else:
             new_framerate = self.framerate
 
-        self.play_obj = sa.play_buffer(self.waveData[start_index * 2:].tobytes(), self.nchannels, self.sampwidth, new_framerate)
+        self.play_obj = sa.play_buffer(self.waveData[start_index * self.nchannels:stop_index * self.nchannels].tobytes(), self.nchannels, self.sampwidth, new_framerate)
 
-        # 设置开始播放的时间
         #self.start_time = time.time() - start_seconds
         self.start_time = time.time() - start_seconds / self.speed
         self.stop_progress_update = False
@@ -67,7 +64,7 @@ class AudioPlayer:
         if self.play_obj is not None and self.play_obj.is_playing():
             
             self.play_obj.stop()
-            time.sleep(0.1)  # 等待音频停止
+            time.sleep(0.1)  
             elapsed_time = time.time() - self.start_time
             if self.speed != 1.0:
                 new_framerate = int(self.framerate * self.speed)
@@ -75,12 +72,8 @@ class AudioPlayer:
             else:
                 new_framerate = self.framerate
             elapsed_samples = int(new_framerate * elapsed_time)
-            # 确保 start_index 是每个样本的字节数和通道数的倍数
             self.start_index += elapsed_samples - elapsed_samples % self.nchannels
         self.last_progress = self.get_progress()
-        #print(f'当前last播放进度：{self.last_progress}/{self.get_total_length()}')
-        # while self.play_obj.is_playing():
-        #     time.sleep(0.1)
         self.stop_progress_update = True
         if self.progress_thread is not None:
             self.progress_thread.join()
@@ -105,13 +98,11 @@ class AudioPlayer:
         else:
             #self.elapsed_time_at_speed_change += (time.time() - self.start_time) * self.speed
             self.pause()
-            # 重新计算 start_index
             #start_index = int(start_index * self.speed)
             self.speed = speed
             self.resume()
             #time.sleep(0.1)
             #self.play()
-        #播放时不能改变速度
             
     def get_progress(self):
         if self.play_obj is not None and self.start_time is not None:
@@ -127,14 +118,36 @@ class AudioPlayer:
         hours, minutes = divmod(minutes, 60)
         return "{:0>2}:{:0>2}:{:0>2}".format(int(hours), int(minutes), int(seconds))
 
+    def get_start_length(self):
+        start_length = int(self.start_index * self.nchannels * self.total_length / len(self.waveData))
+        minutes, seconds = divmod(start_length, 60)
+        hours, minutes = divmod(minutes, 60)
+        return "{:0>2}:{:0>2}:{:0>2}".format(int(hours), int(minutes), int(seconds))
+
+    def get_stop_length(self):
+        stop_length = self.stop_index * self.nchannels * self.total_length / len(self.waveData)
+        minutes, seconds = divmod(stop_length, 60)
+        hours, minutes = divmod(minutes, 60)
+        return "{:0>2}:{:0>2}:{:0>2}".format(int(hours), int(minutes), int(seconds))
+
     def update_progress(self):
-        while  not self.stop_progress_update:
-            #print(f'当前播放进度：{self.get_progress()}/{self.get_total_length()}')
+        first_loop = True
+        first_progress = None
+        while not self.stop_progress_update:
+            current_progress = self.get_progress()
+            if first_loop:
+                first_progress = current_progress
+                first_loop = False
+            #print(f'当前播放进度：{current_progress}/{self.get_total_length()}')
             time.sleep(1)
-            if self.get_progress()>=self.get_total_length():
+            if current_progress >=self.get_stop_length():
+                #print(f'当前播放进度：{first_progress}/{self.get_stop_length()}')
+                self.stop_index = len(self.waveData)/self.nchannels
+                self.stop()
+            if current_progress > self.get_total_length():
                 #print(f'当前播放进度：00:00:00/{self.get_total_length()}')
                 self.stop()
-        #print(f'当前播放进度：00:00:00/{self.get_total_length()}')
+        #print(f'第一次循环的播放进度：{first_progress}/{self.get_total_length()}')
         self.stop_progress_update = True
         
 
@@ -146,12 +159,13 @@ class AudioPlayer:
 
 
     def stop(self):
+        self.start_index = 0
+        self.stop_index = len(self.waveData)/self.nchannels
         if self.play_obj is not None:
             self.play_obj.stop()
-            self.start_index = 0
+            
             self.last_progress = "00:00:00"
             self.stop_progress_update = True
-            # 如果当前线程不是更新进度的线程，那么加入它
             if self.thread is not None and threading.current_thread() != self.thread:
                 self.thread.join()
                 self.thread = None
