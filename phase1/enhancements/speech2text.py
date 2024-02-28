@@ -8,7 +8,10 @@ def speech2text(path):
     file = sr.AudioFile(path)
     with file as source:
         audio = r.record(source)
-    return(r.recognize_google(audio))
+    print('start converting...')
+    text = (r.recognize_google(audio))
+    print('conversion finished')
+    return text
 
 ## Sample usage
 # filePath = "./audioFile/harvard_list1.wav"
