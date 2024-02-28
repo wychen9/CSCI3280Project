@@ -24,7 +24,7 @@ class AudioPlayer:
         self.progress_thread = None
         self.stop_progress_update = False
         self.last_progress = "00:00:00"
-        self.stop_index = len(self.waveData)/2
+        self.stop_index = len(self.waveData)/self.nchannels
 
     #def play(self, start_index=None):
     def play(self, start_percentage=0.0, stop_percentage=100.0):
