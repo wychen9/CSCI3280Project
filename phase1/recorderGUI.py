@@ -252,10 +252,25 @@ def text():
     textCanvas.config(scrollregion=textCanvas.bbox("all"))
 
 def visual():
+    global curVar, endVar, startCircle, endCircle, processCircle
     if vButton.cget("text") == "Image":
         vButton.config(text="End")
-        
+        curVar.set(setTime(0))
+        processCanvas.delete(processCircle)
+        startCircle = processCanvas.create_oval(0, 20, 10, 30, fill="#C00000")
+        endCircle = processCanvas.create_oval(910, 20, 920, 30, fill="#C00000")
+        processCanvas.tag_bind(startCircle, "<Button-1>", lambda event, circle=startCircle : moveOnClick(event, circle))
+        processCanvas.tag_bind(startCircle, "<B1-Motion>", lambda event, circle=startCircle, var=curVar: moveOnDrag(event, circle, var))
+        processCanvas.tag_bind(endCircle, "<Button-1>", lambda event, circle=endCircle : moveOnClick(event, circle))
+        processCanvas.tag_bind(endCircle, "<B1-Motion>", lambda event, circle=endCircle, var=endVar: moveOnDrag(event, circle, var))
         print("visualizing audio")
+    elif vButton.cget("text") == "End":
+        vButton.config(text="Image")
+        processCanvas.delete(startCircle)
+        processCanvas.delete(endCircle)
+        processCircle = processCanvas.create_oval(0, 20, 10, 30, fill="#C00000")
+        processCanvas.tag_bind(processCircle, "<Button-1>", lambda event, circle=processCircle: moveOnClick(event, circle))
+        processCanvas.tag_bind(processCircle, "<B1-Motion>", lambda event, circle=processCircle, var=curVar: moveOnDrag(event, circle, var))
         ## Sample usage
         # vis = Visualization(wavRecording, visualFrame) # need to create a new object first with Recording object and the target frame in GUI
         # vis.begin(startSecond, endSecond) # call this methond when need animated visualization from startSecond(by default 0) to endSecond(by default end of the audio)
