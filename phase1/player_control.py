@@ -1,4 +1,4 @@
-from soo import AudioPlayer
+from soundplayer import AudioPlayer
 
 # Create a player
 while True:
