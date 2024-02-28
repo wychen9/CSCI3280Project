@@ -129,10 +129,10 @@ class AudioPlayer:
 
     def update_progress(self):
         while  not self.stop_progress_update:
-            print(f'当前播放进度：{self.get_progress()}/{self.get_total_length()}')
+            #print(f'当前播放进度：{self.get_progress()}/{self.get_total_length()}')
             time.sleep(1)
             if self.get_progress()>=self.get_total_length():
-                print(f'当前播放进度：00:00:00/{self.get_total_length()}')
+                #print(f'当前播放进度：00:00:00/{self.get_total_length()}')
                 self.stop()
         #print(f'当前播放进度：00:00:00/{self.get_total_length()}')
         self.stop_progress_update = True
