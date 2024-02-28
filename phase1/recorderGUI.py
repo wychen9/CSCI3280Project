@@ -243,6 +243,12 @@ def text():
     textCanvas.config(scrollregion=textCanvas.bbox("all"))
 
 def visual():
+    if tInt.get() == 1:
+        print("visualizing audio")
+        ## Sample usage
+        # vis = Visualization(wavRecording, visualFrame)
+        # vis.begin(startSecond, endSecond) # call this methond when need animated visualization from startSecond(by default 0) to endSecond(by default end of the audio)
+        # vis.locAt(currentLoc) # call this method when need static visualization, with current location at currentLoc(by default 0)
     return
 
 # create framework
