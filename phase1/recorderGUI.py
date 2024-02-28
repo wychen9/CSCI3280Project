@@ -7,6 +7,7 @@
 import audioTrim
 import recording
 import audioRecorder
+import visualization
 import player_control as pc
 import enhancements.speech2text as st
 import datetime
@@ -271,9 +272,14 @@ def visual():
         processCircle = processCanvas.create_oval(0, 20, 10, 30, fill="#C00000")
         processCanvas.tag_bind(processCircle, "<Button-1>", lambda event, circle=processCircle: moveOnClick(event, circle))
         processCanvas.tag_bind(processCircle, "<B1-Motion>", lambda event, circle=processCircle, var=curVar: moveOnDrag(event, circle, var))
+        pc.control("load " + curRecording.path)
+        pc.control("speed " + speedVar.get())
+        pc.control("set " + str(setNumber(curVar.get())*100/curRecording.length) + " "+str(setNumber(endVar.get())*100/curRecording.length))
+        pc.control("play")
+
         ## Sample usage
-        # vis = Visualization(wavRecording, visualFrame) # need to create a new object first with Recording object and the target frame in GUI
-        # vis.begin(startSecond, endSecond) # call this methond when need animated visualization from startSecond(by default 0) to endSecond(by default end of the audio)
+        vis = visualization.Visualization(curRecording, imageFrame) # need to create a new object first with Recording object and the target frame in GUI
+        vis.begin(setNumber(curVar.get()), setNumber(endVar.get())) # call this methond when need animated visualization from startSecond(by default 0) to endSecond(by default end of the audio)
         # vis.locAt(currentLoc) # call this method when need static visualization, with current location at currentLoc(by default 0)
     return
 
@@ -357,7 +363,7 @@ recordingScorll.pack(side=tk.RIGHT, fill=tk.Y)
 # create button - visualFrame
 chooseFrame = tk.Frame(visualFrame, width=700, height=20, bg="#F2F2F2", borderwidth=0, highlightthickness=0)
 contentFrame = tk.Frame(visualFrame, width=700, height=400, bg="#F2F2F2", borderwidth=0, highlightthickness=0)
-visualFrame = tk.Frame(contentFrame, width=700, height=300, bg="white", borderwidth=0, highlightthickness=0)
+imageFrame = tk.Frame(contentFrame, width=700, height=300, bg="white", borderwidth=0, highlightthickness=0)
 textFrame = tk.Frame(contentFrame, width=700, height=300, bg="white", borderwidth=0, highlightthickness=0)
 textScorll = tk.Scrollbar(textFrame)
 textCanvas = tk.Canvas(textFrame, width=700, height=1000, bg="white", borderwidth=0, highlightthickness=0, yscrollcommand=textScorll.set)
@@ -393,7 +399,7 @@ vButton.pack(side=tk.LEFT, padx=5)
 fastR.pack(side=tk.RIGHT, padx=5)
 normalR.pack(side=tk.RIGHT, padx=5)
 slowR.pack(side=tk.RIGHT, padx=5)
-visualFrame.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
+imageFrame.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5, expand=True)
 textFrame.pack(side=tk.TOP, fill=tk.BOTH, padx=5, pady=5)
 textScorll.pack(side=tk.RIGHT, fill=tk.Y)
 textCanvas.pack(side=tk.LEFT, fill=tk.BOTH)
