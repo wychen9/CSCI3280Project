@@ -157,36 +157,3 @@ class AudioPlayer:
                 self.thread = None
         
 
-
-#player = AudioPlayer('demo.wav')
-#total_length = player.get_total_length()
-
-# def print_progress(player):
-#     while player.play_obj is not None and player.play_obj.is_playing():
-#         print(f'当前播放进度：{player.get_progress()}/{total_length}')
-#         time.sleep(1)
-#     print(f'当前播放进度：00:00:00/{total_length}')
-
-# while True:
-#     command = input("请输入指令（load/play/pause/resume/speed/progress/stop/quit）：")
-#     if command == 'load':
-#         path = input('请输入音频文件的路径：')
-#         player = AudioPlayer(path)
-#         total_length = player.get_total_length()
-#     elif command == 'play':
-#         player.play(20)
-#     elif command == 'pause':
-#         player.pause()
-#     elif command == 'resume':
-#         player.resume()
-#     elif command == 'stop':
-#         player.stop()
-#     elif command == 'speed':
-#         speed = float(input('Enter a speed (0.5 to 2.0): '))
-#         player.set_speed(speed)
-#     elif command == 'quit':
-#         player.stop()
-#         break
-#     else:
-#         print("无效的指令，请重新输入。")
-
