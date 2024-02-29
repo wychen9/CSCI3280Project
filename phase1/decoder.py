@@ -1,6 +1,6 @@
 # decoder.py
 import struct
-
+import numpy as np
 def read_wav(file_path):
     with open(file_path, 'rb') as f:
         # 读取文件头
@@ -23,7 +23,20 @@ def read_wav(file_path):
                     audio_format, num_channels, sample_rate, byte_rate, block_align, bits_per_sample = struct.unpack('<HHIIHH', subchunkdata[:16])
                 else:
                     print(f'Warning: fmt chunk size is less than 16 bytes, some information may be missing')
-
+            
+            elif subchunkid == b'data':
+                # 读取data子块，包含了音频数据
+                audio_data = f.read(subchunksize)
+                audio_data = np.frombuffer(audio_data, dtype=np.int16)  # 假设音频数据是16位的
+                audio_data = audio_data.astype(np.float32) / 32768.0  # 归一化
+                return {
+                    'audio_data': audio_data,
+                    'num_channels': num_channels,
+                    'sample_width': bits_per_sample // 8,
+                    'frame_rate': sample_rate
+                }
+            
+            """
             elif subchunkid == b'data':
                 # 读取data子块，包含了音频数据
                 audio_data = f.read(subchunksize)
@@ -33,5 +46,5 @@ def read_wav(file_path):
                     'sample_width': bits_per_sample // 8,
                     'frame_rate': sample_rate
                 }
-
+"""
             chunk_header = f.read(8)
