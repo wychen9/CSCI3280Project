@@ -84,7 +84,7 @@ class Visualization():
         # animated visualization should be displayed in the provided frame
 
         # print("endPoint: " + str(endPoint))
-        endInd = self._secToFrameInd(endPoint+1)
+        endInd = self._secToFrameInd(endPoint+0.5)
         # print("endInd: " + str(endInd))
         if(endPoint<0 or endInd>= len(self.time)):
             endInd = len(self.time)-1
