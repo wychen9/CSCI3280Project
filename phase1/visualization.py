@@ -15,6 +15,8 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from recording import Recording
 from matplotlib.animation import FuncAnimation 
 
+DEFAULT_AUDIO_HEIGHT = 10
+
 class Visualization():
     def __init__(self, wavFile, frame, interval=50, display_sec =4):
         # wavRecording - Recording object of the audio file
@@ -138,13 +140,15 @@ class Visualization():
             plt.vlines(x_vals[start:-1],-y_vals[start:-1], y_vals[start:-1],linewidth = 1)
             diff = x_vals[i] - x_vals[i-1]
             cnt = stop-len(x_vals)
-            plt.hlines(0, x_vals[-1], x_vals[-1]+diff*cnt, alpha=0.2, linewidth =1)
+            plt.vlines([x_vals[-1]+l*diff for l in range(1, cnt+1)],-DEFAULT_AUDIO_HEIGHT, DEFAULT_AUDIO_HEIGHT,linewidth = 1)
+            # plt.hlines(0, x_vals[-1], x_vals[-1]+diff*cnt, alpha=0.2, linewidth =1)
             ax.set(xlim = (x_vals[start],x_vals[-1]+(cnt-1)*diff), ylim =y_lim)
         else:
             plt.vlines(x_vals[0:stop],-y_vals[0:stop],y_vals[0:stop], linewidth = 1)
             diff = x_vals[i] - x_vals[i+1]
             cnt = int(np.floor(np.absolute(start)))
-            plt.hlines(0, x_vals[0]+cnt*diff, x_vals[0], alpha=0.2,linewidth =1)
+            plt.vlines([x_vals[0] + j * diff for j in range(1, cnt+1)], -DEFAULT_AUDIO_HEIGHT, DEFAULT_AUDIO_HEIGHT, linewidth = 1)
+            # plt.hlines(0, x_vals[0]+cnt*diff, x_vals[0], alpha=0.2,linewidth =1)
             ax.set(xlim = (x_vals[0]+(cnt-1)*diff,x_vals[stop]), ylim =y_lim)
         plt.vlines(x_vals[i], y_lim[0], y_lim[1], colors='r', linewidth = 2) 
         ax.set_axis_off()
