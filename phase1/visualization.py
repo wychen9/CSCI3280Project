@@ -65,15 +65,15 @@ class Visualization():
         plt.ion()
         # width = 5
         # height = 3
-        width = self.frame.winfo_width()
-        height = self.frame.winfo_height()
-        # fig, ax = plt.subplots()
+        # width = self.frame.winfo_width()
+        # height = self.frame.winfo_height()
+        # # fig, ax = plt.subplots()
 
-        l = self.ax.figure.subplotpars.left
-        r = self.ax.figure.subplotpars.right
-        t = self.ax.figure.subplotpars.top
-        b = self.ax.figure.subplotpars.bottom
-        self.ax.figure.set_size_inches(float(width)/(r-l), float(height)/(t-b))
+        # l = self.ax.figure.subplotpars.left
+        # r = self.ax.figure.subplotpars.right
+        # t = self.ax.figure.subplotpars.top
+        # b = self.ax.figure.subplotpars.bottom
+        # self.ax.figure.set_size_inches(float(width)/(r-l), float(height)/(t-b))
         # return fig, self.ax
 
     def begin(self, offset=0, endPoint=-1):
@@ -82,9 +82,9 @@ class Visualization():
         #
         # no return
         # animated visualization should be displayed in the provided frame
-        
+
         # print("endPoint: " + str(endPoint))
-        endInd = self._secToFrameInd(endPoint)
+        endInd = self._secToFrameInd(endPoint+1)
         # print("endInd: " + str(endInd))
         if(endPoint<0 or endInd>= len(self.time)):
             endInd = len(self.time)-1
@@ -100,7 +100,7 @@ class Visualization():
 
         ani = FuncAnimation(self.fig, partial(self.animate, self.time, self.signal, self.length, self.signal_lim, self.ax), 
                                                  frames=range(self._secToFrameInd(offset),endInd), 
-                                                 interval=self.interval-10, 
+                                                 interval=self.interval/2, 
                                                  repeat = False,
                                                  blit=False)
         
@@ -114,10 +114,10 @@ class Visualization():
         # no return
         # static visualization should be displayed in the provided frame
 
-        print("receive " + str(offset))
+        # print("receive " + str(offset))
         if(offset<0 or offset>len(self.time)):
             offset = len(self.time) - 1
-        print("location at " + str(offset))
+        # print("location at " + str(offset))
 
         if self.canvas: self.canvas.get_tk_widget().pack_forget()  # remove previous image
     
