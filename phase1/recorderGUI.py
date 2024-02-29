@@ -8,7 +8,7 @@ import audioTrim
 import recording
 import audioRecorder
 import visualization
-import player_control as pc
+import soundplayer as pc
 import enhancements.speech2text as st
 import datetime
 import tkinter as tk
@@ -22,7 +22,9 @@ click_replace = 0
 isPlaying = False
 isReplacing = False
 isRecording = False
+isFirst = True
 tmpLength = 0
+lineLength = 904
 
 # curRecording = recording.Recording()
 curRecording = recording.Recording()
@@ -57,45 +59,59 @@ def recordNew():
 
 def move():
     global isPlaying, click, curVar, tmpLength
-    if processCanvas.coords(processCircle)[0] <= 910 and (isPlaying or isReplacing):
-        processCanvas.move(processCircle, float(910/(audioLength*10))*float(speedVar.get()), 0)
-        curVar.set(setTime(int(processCanvas.coords(processCircle)[0]/910*audioLength)))
-        tmpLength = processCanvas.coords(processCircle)[0]
-        processCanvas.after(100, move)
-    elif processCanvas.coords(processCircle)[0] > 910:
-        if isReplacing:
-            tmp = int(tmpLength/910*audioLength)
-            curVar.set(setTime(tmp))
-            endVar.set(setTime(tmp))
-            tmpLength += float(910/(audioLength*10)*float(speedVar.get()))
+    if processCanvas.coords(processCircle)[0] <= lineLength and (isPlaying or isReplacing):
+        if isPlaying:
+            pc.control("set " + speedVar.get()+" "+str(setNumber(curVar.get())))
+        if processCanvas.coords(processCircle)[0] + float(lineLength/(audioLength*10))*float(speedVar.get()) <= lineLength:
+            processCanvas.move(processCircle, float(lineLength/(audioLength*10))*float(speedVar.get()), 0)
+            curVar.set(setTime(processCanvas.coords(processCircle)[0]/lineLength*audioLength))
+            tmpLength = processCanvas.coords(processCircle)[0]
             processCanvas.after(100, move)
         else:
+            processCanvas.move(processCircle, lineLength+1 - processCanvas.coords(processCircle)[0], 0)
+            curVar.set(setTime(processCanvas.coords(processCircle)[0]/lineLength*audioLength))
+            tmpLength = processCanvas.coords(processCircle)[0]
+            processCanvas.after(1000, move)
+    elif processCanvas.coords(processCircle)[0] >= lineLength:
+        if isReplacing:
+            processCanvas.coords(processCircle)[0] = int(tmpLength/lineLength*audioLength)
+            curVar.set(setTime(processCanvas.coords(processCircle)[0]))
+            endVar.set(setTime(processCanvas.coords(processCircle)[0]))
+            tmpLength += float(lineLength/(audioLength*10)*float(speedVar.get()))
+            processCanvas.after(100, move)
+        else:
+            print("debug")
+            pc.control("stop")
             click += 1
             startOrPauseCanvas.itemconfig(startOrPauseButton, image=startImage)
             isPlaying = False
 
 def StartOrPauseChange(event):
-    global click, isPlaying, isRecording, audioLength
+    global click, isPlaying, isRecording, audioLength, isFirst
     if click % 2 == 0:
-        if processCanvas.coords(processCircle)[0] > 910:
-            processCanvas.coords(processCircle, 0, 20, 10, 30)
-        startOrPauseCanvas.itemconfig(startOrPauseButton, image=pauseImage)
         if audioLength > 0:
             isPlaying = True
-            pc.control("load " + curRecording.path)
-            pc.control("speed " + speedVar.get())
-            pc.control("set " + str(setNumber(curVar.get())*100/curRecording.length))
+            if processCanvas.coords(processCircle)[0] >= lineLength:
+                processCanvas.coords(processCircle, 0, 20, 10, 30)
+                curVar.set(setTime(0))
+            startOrPauseCanvas.itemconfig(startOrPauseButton, image=pauseImage)       
+            pc.control("set " + speedVar.get() + " " + str(setNumber(curVar.get())))
             pc.control("play")
-            processCanvas.after(0, move)
+            if isFirst:
+                processCanvas.after(1000, move)
+                isFirst = False
+            else:
+                processCanvas.after(200, move)
         else:
             isRecording = True
+            startOrPauseCanvas.itemconfig(startOrPauseButton, image=pauseImage) 
             recorder.start_recording()
             processCanvas.after(0, recordNew)
     else:
         startOrPauseCanvas.itemconfig(startOrPauseButton, image=startImage)
         if isPlaying:
             isPlaying = False
-            pc.control("pause")
+            pc.control("stop")
         if isRecording:
             # ----function----
             curRecording.path = recorder.stop_recording()
@@ -104,6 +120,11 @@ def StartOrPauseChange(event):
             audioLength = curRecording.length
             # ----function----
             isRecording = False
+            tmpStr = "   "+ curRecording.name + "\n\n   " + curRecording.createTime.strftime("%Y-%m-%d %H:%M:%S")+"            " + \
+                        setTime(curRecording.length)
+            tagVar.set(tmpStr)
+            endVar.set(setTime(curRecording.length))
+            pc.control("load " + curRecording.path)
     click += 1
 
 def ModifyOrEnsureChange(event):
@@ -123,7 +144,7 @@ def ModifyOrEnsureChange(event):
                         setTime(curRecording.length)
         tagVar.set(tmpStr)
         curVar.set(setTime(0))
-        # audioLength = int((processCanvas.coords(endCircle)[0]-processCanvas.coords(startCircle)[0])/910*audioLength)
+        # audioLength = int((processCanvas.coords(endCircle)[0]-processCanvas.coords(startCircle)[0])/lineLength*audioLength)
         audioLength = curRecording.length
         endVar.set(setTime(audioLength))
         processCanvas.delete(startCircle)
@@ -145,15 +166,20 @@ def ReplaceOrEnsureChange(event):
     else:
         # ----function----
         tmpPath = recorder.stop_recording()
+        print(tmpPath)
         tempRecording = recording.Recording("tmp", datetime.datetime.now(), setNumber(curVar.get())-replaceStart, None, tmpPath)
+        print(tempRecording)
+        print(replaceStart)
+        print(setNumber(curVar.get()))
         audioTrim.overwrite(replaceStart, setNumber(curVar.get()), curRecording, tempRecording)
         # ----function----
         isReplacing = False
-        if tmpLength > 910:
-            audioLength = int(audioLength + (tmpLength - 910)/910*audioLength)
+        if tmpLength > lineLength:
+            audioLength = int(audioLength + (tmpLength - lineLength)/lineLength*audioLength)
         replaceCanvas.itemconfig(replaceButton, image=replaceImage)
         processCanvas.delete(replaceCircle)
         tmpLength = 0
+        pc.control("load " + curRecording.path)
     click_replace += 1
 
 def modify():
@@ -161,7 +187,7 @@ def modify():
     curVar.set(setTime(0))
     processCanvas.delete(processCircle)
     startCircle = processCanvas.create_oval(0, 20, 10, 30, fill="#C00000")
-    endCircle = processCanvas.create_oval(910, 20, 920, 30, fill="#C00000")
+    endCircle = processCanvas.create_oval(lineLength, 20, lineLength+10, 30, fill="#C00000")
     processCanvas.tag_bind(startCircle, "<Button-1>", lambda event, circle=startCircle : moveOnClick(event, circle))
     processCanvas.tag_bind(startCircle, "<B1-Motion>", lambda event, circle=startCircle, var=curVar: moveOnDrag(event, circle, var))
     processCanvas.tag_bind(endCircle, "<Button-1>", lambda event, circle=endCircle : moveOnClick(event, circle))
@@ -186,22 +212,23 @@ def moveOnDrag(event, circle, var):
     if nextPos < 0:
         processCanvas.move(circle, -pos[0], 0)
         curX = 0
-    elif nextPos > 910:
-        processCanvas.move(circle, 910-pos[0], 0)
-        curX = 910
+    elif nextPos > lineLength:
+        processCanvas.move(circle, lineLength-pos[0], 0)
+        curX = lineLength
     else:
         processCanvas.move(circle, event.x-curX, 0)
         curX = event.x
-    var.set(setTime(int(curX/910*audioLength)))
+    var.set(setTime(curX/lineLength*audioLength))
 
 def setTime(length):
+    length = round(length)
     minite = length // 60
     second = length % 60
     str = "{:02d}".format(minite)+":"+"{:02d}".format(second)
     return str
 
-def setNumber(str):
-    return 60*int(str[:2])+int(str[3:])
+def setNumber(string):
+    return 60*int(string[:2])+int(string[3:])
  
 def labelOnClick(event):
     global curVar, endVar, audioLength, processCanvas, processCircle, curLabel
@@ -213,9 +240,11 @@ def labelOnClick(event):
     audioLength = curRecording.length
     curLabel = curRecording.label
     endVar.set(setTime(recordingsList[labelTag[event.widget]].length))
+    print("initial: " + endVar.get())
     curVar.set(setTime(0))
     processCanvas.coords(processCircle, 0, 20, 10, 30)
-    textVar.set(st.speech2text(curRecording.path))
+    # textVar.set(st.speech2text(curRecording.path))
+    pc.control("load " + curRecording.path)
 
 def createNew():
     global index, allFrame, recordingCanvas, curRecording, audioLength, curLabel, tagVar
@@ -259,7 +288,7 @@ def visual():
         curVar.set(setTime(0))
         processCanvas.delete(processCircle)
         startCircle = processCanvas.create_oval(0, 20, 10, 30, fill="#C00000")
-        endCircle = processCanvas.create_oval(910, 20, 920, 30, fill="#C00000")
+        endCircle = processCanvas.create_oval(lineLength, 20, lineLength+10, 30, fill="#C00000")
         processCanvas.tag_bind(startCircle, "<Button-1>", lambda event, circle=startCircle : moveOnClick(event, circle))
         processCanvas.tag_bind(startCircle, "<B1-Motion>", lambda event, circle=startCircle, var=curVar: moveOnDrag(event, circle, var))
         processCanvas.tag_bind(endCircle, "<Button-1>", lambda event, circle=endCircle : moveOnClick(event, circle))
@@ -267,14 +296,15 @@ def visual():
         print("visualizing audio")
     elif vButton.cget("text") == "End":
         vButton.config(text="Image")
+        curVar.set(setTime(0))
+        endVar.set(setTime(curRecording.length))
         processCanvas.delete(startCircle)
         processCanvas.delete(endCircle)
         processCircle = processCanvas.create_oval(0, 20, 10, 30, fill="#C00000")
         processCanvas.tag_bind(processCircle, "<Button-1>", lambda event, circle=processCircle: moveOnClick(event, circle))
         processCanvas.tag_bind(processCircle, "<B1-Motion>", lambda event, circle=processCircle, var=curVar: moveOnDrag(event, circle, var))
-        pc.control("load " + curRecording.path)
-        pc.control("speed " + speedVar.get())
-        pc.control("set " + str(setNumber(curVar.get())*100/curRecording.length) + " "+str(setNumber(endVar.get())*100/curRecording.length))
+        # pc.control("load " + curRecording.path)
+        pc.control("set " + speedVar.get() + " " + str(setNumber(curVar.get())) + " "+str(setNumber(endVar.get())))
         pc.control("play")
 
         ## Sample usage
@@ -334,7 +364,7 @@ curVar.set("00:00")
 endVar.set(setTime(audioLength))
 
 processCanvas = tk.Canvas(statusFrame, width=925, borderwidth=0, bg="#BFBFBF", highlightthickness=0) 
-processLine = processCanvas.create_line(5, 25, 915, 25, width=4)
+processLine = processCanvas.create_line(5, 25, lineLength+10, 25, width=4)
 processCircle = processCanvas.create_oval(0, 20, 10, 30, fill="#C00000")
 processCanvas.tag_bind(processCircle, "<Button-1>", lambda event, circle=processCircle: moveOnClick(event, circle))
 processCanvas.tag_bind(processCircle, "<B1-Motion>", lambda event, circle=processCircle, var=curVar: moveOnDrag(event, circle, var))

@@ -38,10 +38,9 @@ class AudioPlayer:
     def stop(self):
         sd.stop()
 
-
-
 def control(command):
     #command = input()
+    # print(command)
     global recording 
     words = command.split(' ')
     if words[0] == 'load':
@@ -50,6 +49,7 @@ def control(command):
         if len(words) == 3:
             recording.set(float(words[1]), float(words[2]))
         elif len(words) == 4:
+            print(words)
             recording.set(float(words[1]), float(words[2]), float(words[3]))
     elif command == 'play':
         play_thread = threading.Thread(target=recording.play, args=())

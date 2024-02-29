@@ -63,7 +63,7 @@ def overwrite(start, end, wavRecording, tempRecording):
         output.writeframes(head)
         output.writeframes(middle)
         if(tail!=None): output.writeframes(tail)
-    os.remove(tempRecording.path)
+    # os.remove(tempRecording.path)
 
 def _tempRecord(start, end, wavRecording):
     duration = end+1 - start
