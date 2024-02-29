@@ -273,14 +273,23 @@ def createNew():
     index += 1
 
 def text():
-    if tInt.get() == 1:
-        print("changing to text")
+    if tButton.cget("text") == "Text":
+        tButton.config(text="Empty")
         textVar.set(st.speech2text(curRecording.path))
     else:
+        tButton.config(text="Text")
         textVar.set("Hello! Welcome to Our Recorder :)")
     textCanvas.update_idletasks() 
     textCanvas.config(scrollregion=textCanvas.bbox("all"))
 
+def noise():
+    if nButton.cget("text") == "Noise Off":
+        nButton.cget("text") == "Noise On"
+        pc.control("reduce on")
+    else:
+        nButton.cget("text") == "Noise Off"
+        pc.control("reduce on")
+    
 def visual():
     global curVar, endVar, startCircle, endCircle, processCircle
     if vButton.cget("text") == "Image":
@@ -295,7 +304,13 @@ def visual():
         processCanvas.tag_bind(endCircle, "<B1-Motion>", lambda event, circle=endCircle, var=endVar: moveOnDrag(event, circle, var))
         print("visualizing audio")
     elif vButton.cget("text") == "End":
-        vButton.config(text="Image")
+        vButton.config(text="Empty")
+        pc.control("load " + curRecording.path)
+        pc.control("set " + speedVar.get() + " " + str(setNumber(curVar.get())) + " "+str(setNumber(endVar.get())))
+        pc.control("play")
+        vis = visualization.Visualization(curRecording, imageFrame) # need to create a new object first with Recording object and the target frame in GUI
+        vis.begin(setNumber(curVar.get()), setNumber(endVar.get())) # call this methond when need animated visualization from startSecond(by default 0) to endSecond(by default end of the audio)
+        # vis.locAt(currentLoc) # call this method when need static visualization, with current location at currentLoc(by default 0)
         curVar.set(setTime(0))
         endVar.set(setTime(curRecording.length))
         processCanvas.delete(startCircle)
@@ -303,16 +318,11 @@ def visual():
         processCircle = processCanvas.create_oval(0, 20, 10, 30, fill="#C00000")
         processCanvas.tag_bind(processCircle, "<Button-1>", lambda event, circle=processCircle: moveOnClick(event, circle))
         processCanvas.tag_bind(processCircle, "<B1-Motion>", lambda event, circle=processCircle, var=curVar: moveOnDrag(event, circle, var))
-        # pc.control("load " + curRecording.path)
-        pc.control("set " + speedVar.get() + " " + str(setNumber(curVar.get())) + " "+str(setNumber(endVar.get())))
-        pc.control("play")
-
-        ## Sample usage
-        vis = visualization.Visualization(curRecording, imageFrame) # need to create a new object first with Recording object and the target frame in GUI
-        vis.begin(setNumber(curVar.get()), setNumber(endVar.get())) # call this methond when need animated visualization from startSecond(by default 0) to endSecond(by default end of the audio)
-        # vis.locAt(currentLoc) # call this method when need static visualization, with current location at currentLoc(by default 0)
-    return
-
+    elif vButton.cget("text") == "Empty":
+        vButton.config(text="Image")
+        for widget in imageFrame.winfo_children():
+            widget.destroy()
+        imageFrame.config(width=700, height=300)
 # create framework
 mainFrame = tk.Frame(root)
 pageFrame = tk.Frame(mainFrame, width=1080, height=570, bg="#FFFFFF", borderwidth=0, highlightthickness=0)
@@ -408,9 +418,9 @@ textCanvas.update_idletasks()
 textCanvas.config(scrollregion=textCanvas.bbox("all"))
 
 tvFrame = tk.Frame(chooseFrame, width=200, height=20, bg="#F2F2F2", borderwidth=0, highlightthickness=0)
-tInt = tk.IntVar()
-tButton = tk.Checkbutton(tvFrame, text="Text", variable=tInt, bg="#F2F2F2", command=text)
+tButton = tk.Button(tvFrame, text="Text", bg="#F2F2F2", command=text)
 vButton = tk.Button(tvFrame, text="Image", bg="#F2F2F2", command=visual)
+nButton = tk.Button(tvFrame, text="Noise Off", bg="#F2F2F2", command=noise)
 
 speedFrame = tk.Frame(chooseFrame, width=300, height=20, bg="#F2F2F2", borderwidth=0, highlightthickness=0)
 speedVar = tk.StringVar()
@@ -426,6 +436,7 @@ speedFrame.pack(side=tk.LEFT, fill=tk.Y)
 tvFrame.pack(side=tk.RIGHT, fill=tk.Y)
 tButton.pack(side=tk.LEFT, padx=5)
 vButton.pack(side=tk.LEFT, padx=5)
+nButton.pack(side=tk.LEFT, padx=5)
 fastR.pack(side=tk.RIGHT, padx=5)
 normalR.pack(side=tk.RIGHT, padx=5)
 slowR.pack(side=tk.RIGHT, padx=5)
