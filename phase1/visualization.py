@@ -36,6 +36,7 @@ class Visualization():
         # print("length: " + str(self.length))
         self.signal = np.frombuffer(self.signal, dtype ="int16")
         self.time = [i/self.f_rate for i in range(len(self.signal))]
+        plt.close('all')
         self.fig, self.ax=plt.subplots()
         self._initFig()
         self._processData()
@@ -64,7 +65,8 @@ class Visualization():
 
     def _initFig(self):
         plt.style.use('fivethirtyeight')
-        plt.ion()
+        for widget in self.frame.winfo_children():
+            widget.destroy()
         # width = 5
         # height = 3
         # width = self.frame.winfo_width()
@@ -86,7 +88,11 @@ class Visualization():
         # animated visualization should be displayed in the provided frame
 
         # print("endPoint: " + str(endPoint))
-        endInd = self._secToFrameInd(endPoint+0.5)
+        offset = offset - 0.25
+        if(offset < 0 or offset >= len(self.time)):
+            offset = 0
+            
+        endInd = self._secToFrameInd(endPoint+0.25)
         # print("endInd: " + str(endInd))
         if(endPoint<0 or endInd>= len(self.time)):
             endInd = len(self.time)-1
@@ -107,7 +113,9 @@ class Visualization():
                                                  blit=False)
         
         self.canvas.draw()
-        self.locAt(endInd-1)
+        # plt.close(self.fig)
+        # ret = self.locAt(endInd-1)
+        return 1
         
 
     def locAt(self, offset=-1):
@@ -128,8 +136,10 @@ class Visualization():
 
         self.animate(self.time, self.signal, self.length, self.signal_lim, self.ax, offset)
         self.canvas.draw()
+        return 1
 
     def animate(self,x_vals, y_vals, length, y_lim, ax, i):
+        plt.ion()
         ax.cla()
         start = int(np.floor(i - length/2))
         stop =  int(np.ceil(i + length/2))
@@ -140,20 +150,21 @@ class Visualization():
             plt.vlines(x_vals[start:-1],-y_vals[start:-1], y_vals[start:-1],linewidth = 1)
             diff = x_vals[i] - x_vals[i-1]
             cnt = stop-len(x_vals)
-            plt.vlines([x_vals[-1]+l*diff for l in range(1, cnt+1)],-DEFAULT_AUDIO_HEIGHT, DEFAULT_AUDIO_HEIGHT,linewidth = 1)
+            plt.vlines([x_vals[-1]+l*diff for l in range(1, cnt)],-DEFAULT_AUDIO_HEIGHT, DEFAULT_AUDIO_HEIGHT,linewidth = 1)
             # plt.hlines(0, x_vals[-1], x_vals[-1]+diff*cnt, alpha=0.2, linewidth =1)
             ax.set(xlim = (x_vals[start],x_vals[-1]+(cnt-1)*diff), ylim =y_lim)
         else:
             plt.vlines(x_vals[0:stop],-y_vals[0:stop],y_vals[0:stop], linewidth = 1)
             diff = x_vals[i] - x_vals[i+1]
             cnt = int(np.floor(np.absolute(start)))
-            plt.vlines([x_vals[0] + j * diff for j in range(1, cnt+1)], -DEFAULT_AUDIO_HEIGHT, DEFAULT_AUDIO_HEIGHT, linewidth = 1)
+            plt.vlines([x_vals[0] + j * diff for j in range(1, cnt)], -DEFAULT_AUDIO_HEIGHT, DEFAULT_AUDIO_HEIGHT, linewidth = 1)
             # plt.hlines(0, x_vals[0]+cnt*diff, x_vals[0], alpha=0.2,linewidth =1)
             ax.set(xlim = (x_vals[0]+(cnt-1)*diff,x_vals[stop]), ylim =y_lim)
         plt.vlines(x_vals[i], y_lim[0], y_lim[1], colors='r', linewidth = 2) 
         ax.set_axis_off()
+        plt.ioff()
 
-## sample usages
+# # sample usages
 # root = tk.Tk()
 # root.geometry("500x300")
 # width = root.winfo_width()
@@ -163,5 +174,9 @@ class Visualization():
 
 # wavRecording = Recording('list1', '','','','./audioFile/harvard_list1.wav')
 # vis = Visualization(wavRecording, frame2)
-# vis.begin(22,25)
+# ret = vis.begin(30,34)
+# print(ret)
+# time.sleep(5)
+# # vis = Visualization(wavRecording, frame2)
+# # vis.begin(0,10)
 # root.mainloop()
