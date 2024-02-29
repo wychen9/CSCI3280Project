@@ -26,7 +26,6 @@ isFirst = True
 tmpLength = 0
 lineLength = 904
 
-# curRecording = recording.Recording()
 curRecording = recording.Recording()
 audioLength = curRecording.length
 curLabel = curRecording.label
@@ -45,12 +44,8 @@ startImage = PhotoImage(file="images/Start.PNG")
 pauseImage = PhotoImage(file="images/Pause.PNG")
 replaceImage = PhotoImage(file="images/Replace.PNG")
 ensureImage = PhotoImage(file="images/Ensure.PNG")
+
 # define functions
-
-def DISABLED(event):
-    print("click")
-    return 
-
 def recordNew():
     if isRecording:
         endVar.set(setTime(setNumber(endVar.get())+1))
@@ -80,7 +75,6 @@ def move():
             tmpLength += float(lineLength/(audioLength*10)*float(speedVar.get()))
             processCanvas.after(100, move)
         else:
-            print("debug")
             pc.control("stop")
             click += 1
             startOrPauseCanvas.itemconfig(startOrPauseButton, image=startImage)
@@ -113,12 +107,9 @@ def StartOrPauseChange(event):
             isPlaying = False
             pc.control("stop")
         if isRecording:
-            # ----function----
             curRecording.path = recorder.stop_recording()
             curRecording.length = int(recorder.get_total_recording_length())
-            print(recorder.get_total_recording_length())
             audioLength = curRecording.length
-            # ----function----
             isRecording = False
             tmpStr = "   "+ curRecording.name + "\n\n   " + curRecording.createTime.strftime("%Y-%m-%d %H:%M:%S")+"            " + \
                         setTime(curRecording.length)
@@ -130,13 +121,10 @@ def StartOrPauseChange(event):
 def ModifyOrEnsureChange(event):
     global click_modify, processCircle, curVar, endVar, audioLength, isModifying, tagVar
     if click_modify % 2 == 0:
-        print("modify")
         modifyCanvas.itemconfig(modifyButton, image=ensureImage)
         modify()
     else:
-        # ----function----
         audioTrim.audioTrim(setNumber(curVar.get()), setNumber(endVar.get()), curRecording)
-        # ----function----
         modifyCanvas.itemconfig(modifyButton, image=modifyImage)
         curRecording.length = setNumber(endVar.get()) - setNumber(curVar.get())
         curRecording.createTime = datetime.datetime.now()
@@ -144,7 +132,6 @@ def ModifyOrEnsureChange(event):
                         setTime(curRecording.length)
         tagVar.set(tmpStr)
         curVar.set(setTime(0))
-        # audioLength = int((processCanvas.coords(endCircle)[0]-processCanvas.coords(startCircle)[0])/lineLength*audioLength)
         audioLength = curRecording.length
         endVar.set(setTime(audioLength))
         processCanvas.delete(startCircle)
@@ -164,15 +151,9 @@ def ReplaceOrEnsureChange(event):
         recorder.start_recording()
         replace()
     else:
-        # ----function----
         tmpPath = recorder.stop_recording()
-        print(tmpPath)
         tempRecording = recording.Recording("tmp", datetime.datetime.now(), setNumber(curVar.get())-replaceStart, None, tmpPath)
-        print(tempRecording)
-        print(replaceStart)
-        print(setNumber(curVar.get()))
         audioTrim.overwrite(replaceStart, setNumber(curVar.get()), curRecording, tempRecording)
-        # ----function----
         isReplacing = False
         if tmpLength > lineLength:
             audioLength = int(audioLength + (tmpLength - lineLength)/lineLength*audioLength)
@@ -235,15 +216,12 @@ def labelOnClick(event):
     for i in recordingsList:
         i.label.config(bg="#E3B00B")
     event.widget.config(bg="#FFE699")
-    print(labelTag[event.widget])
     curRecording = recordingsList[labelTag[event.widget]]
     audioLength = curRecording.length
     curLabel = curRecording.label
     endVar.set(setTime(recordingsList[labelTag[event.widget]].length))
-    print("initial: " + endVar.get())
     curVar.set(setTime(0))
     processCanvas.coords(processCircle, 0, 20, 10, 30)
-    # textVar.set(st.speech2text(curRecording.path))
     pc.control("load " + curRecording.path)
 
 def createNew():
@@ -302,7 +280,6 @@ def visual():
         processCanvas.tag_bind(startCircle, "<B1-Motion>", lambda event, circle=startCircle, var=curVar: moveOnDrag(event, circle, var))
         processCanvas.tag_bind(endCircle, "<Button-1>", lambda event, circle=endCircle : moveOnClick(event, circle))
         processCanvas.tag_bind(endCircle, "<B1-Motion>", lambda event, circle=endCircle, var=endVar: moveOnDrag(event, circle, var))
-        print("visualizing audio")
     elif vButton.cget("text") == "End":
         vButton.config(text="Empty")
         pc.control("load " + curRecording.path)
@@ -323,6 +300,7 @@ def visual():
         for widget in imageFrame.winfo_children():
             widget.destroy()
         imageFrame.config(width=700, height=300)
+    
 # create framework
 mainFrame = tk.Frame(root)
 pageFrame = tk.Frame(mainFrame, width=1080, height=570, bg="#FFFFFF", borderwidth=0, highlightthickness=0)

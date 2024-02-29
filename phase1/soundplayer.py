@@ -47,7 +47,6 @@ class AudioPlayer:
 
 
 def control(command):
-    #command = input()
     global recording 
     words = command.split(' ')
     if words[0] == 'load':
