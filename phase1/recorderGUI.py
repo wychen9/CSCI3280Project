@@ -262,11 +262,11 @@ def text():
 
 def noise():
     if nButton.cget("text") == "Noise Off":
-        nButton.cget("text") == "Noise On"
+        nButton.config(text="Noise On ")
         pc.control("reduce on")
     else:
-        nButton.cget("text") == "Noise Off"
-        pc.control("reduce on")
+        nButton.config(text="Noise Off")
+        pc.control("reduce off")
     
 def visual():
     global curVar, endVar, startCircle, endCircle, processCircle
