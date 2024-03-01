@@ -13,7 +13,7 @@ def speech2text(path):
         text = (r.recognize_google(audio))
     except sr.exceptions.UnknownValueError:
         print('UnknownValueError')
-        return 'No text detected in the recording, which might be caused by noises.'
+        return 'Error: No text detected in the recording, which might be caused by noises.'
 
     print('conversion finished')
     return text
