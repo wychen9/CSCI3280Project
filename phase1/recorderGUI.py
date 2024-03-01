@@ -1,14 +1,17 @@
 # Install:
 #   python3 -m pip install SpeechRecognition
-#   brew install flac (for mac)
+#   python3 -m pip install sounddevice
+#   python3 -m pip install noisereduce
 #   python3 -m pip install matplotlib
-#   python3 -m pip install simpleaudio
+#   python3 -m pip install librosa
+#   python3 -m pip install numpy
+#   brew install flac (for mac)
 
 import audioTrim
 import recording
 import audioRecorder
 import visualization
-import soundplayer as pc
+import audioPlayer as pc
 import enhancements.speech2text as st
 import datetime
 import tkinter as tk
