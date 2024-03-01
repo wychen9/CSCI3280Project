@@ -15,7 +15,8 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from recording import Recording
 from matplotlib.animation import FuncAnimation 
 
-DEFAULT_AUDIO_HEIGHT = 10
+DEFAULT_AUDIO_HEIGHT = 50
+local_time_delay = 22.5
 
 class Visualization():
     def __init__(self, wavFile, frame, interval=50, display_sec =4):
@@ -40,7 +41,7 @@ class Visualization():
         self.fig, self.ax=plt.subplots()
         self._initFig()
         self._processData()
-        self.signal_lim = (-np.max(self.signal),np.max(self.signal))
+        self.signal_lim = (-6000,6000)
         self.canvas = None
         # self._bindCanvas()
     def _secToFrameInd(self, sec):
@@ -88,7 +89,7 @@ class Visualization():
         # animated visualization should be displayed in the provided frame
 
         # print("endPoint: " + str(endPoint))
-        offset = offset - 0.25
+        offset = self._secToFrameInd(offset-0.25)
         if(offset < 0 or offset >= len(self.time)):
             offset = 0
             
@@ -100,15 +101,15 @@ class Visualization():
         # print("time length: " + str(len(self.time)))
         # print("start point: " + str(self._secToFrameInd(offset)))
         # print("end point: " + str(endInd))
-
+        print('time: ' + str(self.time[-1]))
+        print('y_lim: ' + str(self.signal_lim))
         if self.canvas: self.canvas.get_tk_widget().pack_forget()  # remove previous image
-    
+
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.frame)
         self.canvas.get_tk_widget().pack(expand=True, fill='both')
-
         ani = FuncAnimation(self.fig, partial(self.animate, self.time, self.signal, self.length, self.signal_lim, self.ax), 
-                                                 frames=range(self._secToFrameInd(offset),endInd), 
-                                                 interval=self.interval/2, 
+                                                 frames=range(offset,endInd), 
+                                                 interval=self.interval-local_time_delay, 
                                                  repeat = False,
                                                  blit=False)
         
@@ -138,11 +139,12 @@ class Visualization():
         self.canvas.draw()
         return 1
 
-    def animate(self,x_vals, y_vals, length, y_lim, ax, i):
+    def animate(self,x_vals, y_vals_in, length, y_lim, ax, i):
         plt.ion()
         ax.cla()
         start = int(np.floor(i - length/2))
         stop =  int(np.ceil(i + length/2))
+        y_vals = np.clip(y_vals_in, a_min=DEFAULT_AUDIO_HEIGHT*2, a_max=None) 
         if(stop<len(x_vals) and start >= 0): 
             plt.vlines(x_vals[start:stop],-y_vals[start:stop], y_vals[start:stop],linewidth = 1)
             ax.set(xlim = (x_vals[start],x_vals[stop]), ylim =y_lim)
@@ -150,14 +152,14 @@ class Visualization():
             plt.vlines(x_vals[start:-1],-y_vals[start:-1], y_vals[start:-1],linewidth = 1)
             diff = x_vals[i] - x_vals[i-1]
             cnt = stop-len(x_vals)
-            plt.vlines([x_vals[-1]+l*diff for l in range(1, cnt)],-DEFAULT_AUDIO_HEIGHT, DEFAULT_AUDIO_HEIGHT,linewidth = 1)
+            plt.vlines([x_vals[-1]+l*diff for l in range(0, cnt)],-DEFAULT_AUDIO_HEIGHT, DEFAULT_AUDIO_HEIGHT,linewidth = 1)
             # plt.hlines(0, x_vals[-1], x_vals[-1]+diff*cnt, alpha=0.2, linewidth =1)
             ax.set(xlim = (x_vals[start],x_vals[-1]+(cnt-1)*diff), ylim =y_lim)
         else:
             plt.vlines(x_vals[0:stop],-y_vals[0:stop],y_vals[0:stop], linewidth = 1)
             diff = x_vals[i] - x_vals[i+1]
             cnt = int(np.floor(np.absolute(start)))
-            plt.vlines([x_vals[0] + j * diff for j in range(1, cnt)], -DEFAULT_AUDIO_HEIGHT, DEFAULT_AUDIO_HEIGHT, linewidth = 1)
+            plt.vlines([x_vals[0] + j * diff for j in range(0, cnt)], -DEFAULT_AUDIO_HEIGHT, DEFAULT_AUDIO_HEIGHT, linewidth = 1)
             # plt.hlines(0, x_vals[0]+cnt*diff, x_vals[0], alpha=0.2,linewidth =1)
             ax.set(xlim = (x_vals[0]+(cnt-1)*diff,x_vals[stop]), ylim =y_lim)
         plt.vlines(x_vals[i], y_lim[0], y_lim[1], colors='r', linewidth = 2) 
@@ -172,11 +174,11 @@ class Visualization():
 # frame2 = tk.Frame(root,bg='black', width=width, height=height)
 # frame2.pack(fill='both', expand=True)
 
-# wavRecording = Recording('list1', '','','','./audioFile/harvard_list1.wav')
+# wavRecording = Recording('list1', '','','','./audioFile/test1.wav')
 # vis = Visualization(wavRecording, frame2)
-# ret = vis.begin(30,34)
-# print(ret)
-# time.sleep(5)
+# ret = vis.begin()
+# # print(ret)
+# # time.sleep(5)
 # # vis = Visualization(wavRecording, frame2)
 # # vis.begin(0,10)
 # root.mainloop()

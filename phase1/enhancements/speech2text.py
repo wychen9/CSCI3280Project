@@ -9,7 +9,12 @@ def speech2text(path):
     with file as source:
         audio = r.record(source)
     print('start converting...')
-    text = (r.recognize_google(audio))
+    try: 
+        text = (r.recognize_google(audio))
+    except sr.exceptions.UnknownValueError:
+        print('UnknownValueError')
+        return 'No text detected in the recording, which might be caused by noises.'
+
     print('conversion finished')
     return text
 
