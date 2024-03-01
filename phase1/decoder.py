@@ -1,6 +1,7 @@
-# decoder.py
 import struct
 import numpy as np
+
+
 def read_wav(file_path):
     with open(file_path, 'rb') as f:
         riff, size, fformat = struct.unpack('<4sI4s', f.read(12))
