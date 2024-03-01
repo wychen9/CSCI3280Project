@@ -1,5 +1,4 @@
 import sounddevice as sd
-import soundfile as sf
 import noisereduce as nr
 import librosa
 import librosa.display
