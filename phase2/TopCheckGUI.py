@@ -2,16 +2,24 @@ import tkinter as tk
 
 topbox = None
 name_entry = None
+title = None
 
 def JoinRoom():
     name = name_entry.get()
-    #TODO: Turn to Room GUI
+    #TODO: Create a Room and Join
+    if title == "Create":
+        print("Room Creator: " + name)
+
+    #TODO: Join a Room
+    elif title == "Join":
+        print("Room Joiner: " + name)
 
 def Cancel():
     topbox.destroy()
 
 def TopCheckBox(boxTitle):
-    global topbox, name_entry
+    global topbox, name_entry, title
+    title = boxTitle
     topbox = tk.Toplevel()
     topbox.title(boxTitle)
     topbox.geometry("300x200")
