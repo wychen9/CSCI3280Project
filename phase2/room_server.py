@@ -4,7 +4,7 @@ import socket
 import threading
 ip = '127.0.0.1'
 port = 8888
-NUM_OF_THREADS = 5
+MAX_USER = 10
 class Room_Server():
     def __init__(self):
         # roomList - save rooms on the server in list [Room objects]
