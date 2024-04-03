@@ -1,11 +1,8 @@
 from Room import Room
 import socket
-import threading
-import time
 #  CHAT ROOM NAME CANNOT CONTAIN '&', '%', '#' and '@' !!!
 ip = '127.0.0.1'
 port = 8888
-NUM_OF_THREADS = 2
 
 class Room_Client():
     def __init__(self, mem):

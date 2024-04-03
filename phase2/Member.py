@@ -1,7 +1,6 @@
 from room_client import Room_Client
 import sys
 import time
-NUM_OF_THD = 3
 NUM_OF_USER = 10
 class Member:
     def __init__(self, name):

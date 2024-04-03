@@ -16,7 +16,7 @@ class Room_Server():
         self.roomListLock = threading.Lock()
         
         multhd = []
-        for i in range(NUM_OF_THREADS):
+        for i in range(MAX_USER):
             multhd.append(threading.Thread(target=self.connect_with_client))
         for i in multhd:
             i.setDaemon(1)
