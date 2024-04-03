@@ -37,17 +37,17 @@ class Room_Client():
         msg = 'r@'
         self.s.send(str.encode(msg))
         res = self.recv_from_srv()
-        for content in res:
-            if '&' in content:
-                content = content.replace('&','')
-                self.roomList = content.split('%')
-        print('roomList in Client: ' + str(self.roomList))
+        content = res.replace('&','')
+        self.roomList = content.split('%')
+        print('roomList for ' + self.mem.name + ': ' + str(self.roomList))
         return self.roomList
     
     def get_room_count(self, roomName):
+        # return - (int) number of current members in the given room
         msg = 'n#'+roomName+ '@'
         self.s.send(str.encode(msg))
-        self.recv_from_srv()
+        ret = self.recv_from_srv()
+        return int(ret)
 
     def join_room(self, roomName):
         # roomName - (String) room name
@@ -75,8 +75,9 @@ class Room_Client():
         d = self.s.recv(1024)
         buffer.append(d)
         data = b''.join(buffer)
-        msgs = str(data,'UTF-8').split('@')
-        msgs = list(filter(lambda x: x!= '', msgs))
-        for msg in msgs:
-            if(not '&' in msg): print(self.mem.name + ': '+  msg)
-        return msgs
+        msg = str(data,'UTF-8')
+        # msgs = list(filter(lambda x: x!= '', msgs))
+        # for msg in msgs:
+        #     if(not '&' in msg): print(self.mem.name + ': '+  msg)
+        if(not '&' in msg): print(self.mem.name + ': '+  msg)
+        return msg

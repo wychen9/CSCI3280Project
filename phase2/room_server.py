@@ -71,7 +71,7 @@ class Room_Server():
         # no return
         if(name in [r.roomName for r in self.roomList]):
             # self.join_room(name, mem, sock)
-            msg = 'Room ' + name + ' has already existed.'+ '@'
+            msg = 'Room ' + name + ' has already existed.'
             sock.send(str.encode(msg))
         else:
             self.roomListLock.acquire()
@@ -80,7 +80,7 @@ class Room_Server():
             self.roomList.append(new_room)
             self.roomListLock.release()
 
-            msg = 'New room ' + name + ' created.'+ '@'
+            msg = 'New room ' + name + ' created.'
             sock.send(str.encode(msg))
         
             
@@ -88,7 +88,7 @@ class Room_Server():
     def get_room_list(self, sock):
         # return - return current room list
         roomNames = [r.roomName for r in self.roomList]
-        msg = '%'.join(roomNames) + '&@'
+        msg = '%'.join(roomNames) + '&'
         print("Current Room List: ")
         print([r.roomName for r in self.roomList])
         print('members in rooms: ')
@@ -118,13 +118,13 @@ class Room_Server():
             room = list(filter(lambda r: r.roomName == roomName,self.roomList))[0]
             member = memberList[int(mem)]
             if(member in room.members):
-                msg = member.name + ' has already been in Room ' + roomName + '.'+ '@'
+                msg = member.name + ' has already been in Room ' + roomName + '.'
                 sock.send(str.encode(msg))
             else:
                 self.roomListLock.acquire()
                 room.joinMember(member)
                 self.roomListLock.release()
-                msg = member.name + ' has joined Room ' + roomName + '.'+ '@'
+                msg = member.name + ' has joined Room ' + roomName + '.'
                 sock.send(str.encode(msg))
         else: 
             msg = "No such room found."
@@ -146,12 +146,12 @@ class Room_Server():
                 self.roomListLock.acquire()
                 room.leaveMember(member)
                 self.roomListLock.release()
-                msg = member.name + ' has left Room ' + roomName + '.'+ '@'
+                msg = member.name + ' has left Room ' + roomName + '.'
                 sock.send(str.encode(msg))
                 if(room.isEmpty()): 
                     self.roomList.remove(room)
             else: 
-                msg = member.name + ' has not been in Room ' + roomName + ' yet.'+ '@'
+                msg = member.name + ' has not been in Room ' + roomName + ' yet.'
                 sock.send(str.encode(msg))
         else: 
             msg = "No such room found."
@@ -160,7 +160,7 @@ class Room_Server():
 
     def log_out(self, sock):
         # end the connection session
-        msg = 'Connection is closed from client side.@'
+        msg = 'Connection is closed from client side.'
         sock.send(str.encode(msg))
         sock.close()
 
