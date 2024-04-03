@@ -6,9 +6,8 @@ class Room:
     
     def joinMember(self, member):
         self.count += 1
-        member.setID(self.count)
         self.members.append(member)
     
     def leaveMember(self, member):
-        member.setID(None)
+        self.count += 1
         self.members.remove(member)

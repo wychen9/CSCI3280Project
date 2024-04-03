@@ -11,4 +11,9 @@ class Member:
 
     def getName(self):
         return self.name
-    
+
+memberList = [] 
+for i in range(0,10):
+    member = Member('User ' + str(i))
+    member.setID(str(i))
+    memberList.append(member)
