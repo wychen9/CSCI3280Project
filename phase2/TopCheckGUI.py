@@ -4,40 +4,53 @@ import RoomMeetingGUI
 topbox = None
 name_entry = None
 romm_name_entry = None
+room_name = None
 title = None
 client = None
+root = None
 
 def JoinRoom():
-    room_name = room_name_entry.get()
+    global root, topbox, name_entry, room_name_entry, room_name, title, client
+    if not room_name:
+        room_name = room_name_entry.get()
     name = name_entry.get()
-    #TODO: Create a Room and Join
     if title == "Create":
         print("Room "+ room_name + " Created!")
         print("Room Creator: " + name)
         client.create_room(room_name)
-        RoomMeetingGUI.createGUI(client, room_name, name)
+        topbox.destroy()
+        RoomMeetingGUI.createGUI(root, client, room_name, name)
+        
 
-    #TODO: Join a Room
     elif title == "Join":
+        print("Room "+ room_name + " Joined!")
         print("Room Joiner: " + name)
+        client.join_room(room_name)
+        topbox.destroy()
+        RoomMeetingGUI.createGUI(root, client, room_name, name)
+        
 
 def Cancel():
+    global topbox
     topbox.destroy()
 
-def TopCheckBox(boxTitle, c):
-    global topbox, name_entry, room_name_entry, title, client
-    client = c
+def TopCheckBox(r, boxTitle, c, roomName=None):
+    global root, topbox, name_entry, room_name_entry, room_name, title, client
     title = boxTitle
-    topbox = tk.Toplevel()
+    client = c
+    root = r
+    room_name = roomName
+    topbox = tk.Toplevel(root)
     topbox.title(boxTitle)
     topbox.geometry("300x200")
     topbox.resizable(False, False)
     topbox.configure(bg="#f2f2f2")
 
-    empty_label = tk.Label(topbox, width=15, text="", font=("Arial", 6), bg="#F2F2F2", fg="#000000")
-    empty_label.pack(side=tk.TOP, pady=0)
-    title_label = tk.Label(topbox, width=20, height=1, text="Join as", font=("Arial", 20), bg="#f2f2f2", fg="#000000")
-    title_label.pack(side=tk.TOP, anchor="nw", pady=10, fill=tk.X)
+    if boxTitle == "Join":
+        empty_label = tk.Label(topbox, width=15, text="", font=("Arial", 6), bg="#F2F2F2", fg="#000000")
+        empty_label.pack(side=tk.TOP, pady=0)
+        title_label = tk.Label(topbox, width=20, height=1, text="Join as", font=("Arial", 20), bg="#f2f2f2", fg="#000000")
+        title_label.pack(side=tk.TOP, anchor="nw", pady=10, fill=tk.X)
     if boxTitle == "Create":
         room_name_entry = tk.Entry(topbox, width=30, font=("Arial", 15), bg="#f2f2f2", fg="#000000")
         room_name_entry.pack(side=tk.TOP, pady=5)

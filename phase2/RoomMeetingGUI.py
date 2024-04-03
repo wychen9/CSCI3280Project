@@ -1,8 +1,13 @@
 import tkinter as tk
 
+root = None
+client = None
+room_name = None
 root, member_canvas, member_scorll_frame = None, None, None
 mute_var, record_var, status_var = None, None, None
+
 def createMember(name, i, j):
+    global member_canvas, member_scorll_frame
     member_frame = tk.Frame(member_scorll_frame, width=280, height=220, bg="grey", borderwidth=0, highlightthickness=0)
     member_frame.grid(row=i, column=j, padx=30, pady=10)
     video_frame = tk.Frame(member_frame, width=280, height=180, bg="green", borderwidth=0, highlightthickness=0)
@@ -11,7 +16,7 @@ def createMember(name, i, j):
     status_frame = tk.Frame(member_frame, width=280, height=40, bg="#ffffff", borderwidth= 0, highlightthickness=0)
     status_frame.pack(side=tk.BOTTOM, fill=tk.X)
     status_frame.pack_propagate(False)
-    name_label = tk.Label(status_frame, width=5, height=1, text=name, font=("Arial", 15), bg="#ffffff", fg="black")
+    name_label = tk.Label(status_frame, width=10, height=1, text=name, font=("Arial", 15), bg="#ffffff", fg="black")
     name_label.place(relx=0.5, rely=0.5, anchor="center")
     mute_canvas = tk.Canvas(status_frame, width=30, height=30, bg="#ffffff", borderwidth=0, highlightthickness=0)
     mute_canvas.place(relx=0.5, rely=0.5, anchor="e", x=-50)
@@ -19,13 +24,21 @@ def createMember(name, i, j):
     member_canvas.update_idletasks()
     member_canvas.config(scrollregion=member_canvas.bbox("all"))
 
+# --------------------------------------------------------------
+# TODO: Mute or unmute
+# --------------------------------------------------------------
 def MuteOrUnmute():
+    global mute_var
     if mute_var.get() == "Mute":
         mute_var.set("Unmute")
     else:
         mute_var.set("Mute")
 
+# --------------------------------------------------------------
+# TODO: Start or stop recording
+# --------------------------------------------------------------
 def StartOrStopRecord():
+    global record_var, status_var
     if record_var.get() == "Start Record":
         record_var.set("Stop Record")
         status_var.set("Recording...")
@@ -33,32 +46,39 @@ def StartOrStopRecord():
         record_var.set("Start Record")
         status_var.set("")
 
+# --------------------------------------------------------------
+# TODO: Download recording file
+# --------------------------------------------------------------
 def downloadRecording():
     print("Download recording")
 
 def Quit():
+    client.leave_room(room_name)
     root.quit()
 
-def createGUI(client, roomName, name):
-    global root, member_canvas, member_scorll_frame
+def createGUI(r, c, roomName, name):
+    global root, client, room_name, root, member_canvas, member_scorll_frame
     global mute_var, record_var, status_var
-    root = tk.Tk()
-    root.minsize(1080, 720)
-    root.title("Online Chat Room")
-    root.geometry("1080x720")
-    root.resizable(False, False)
-    root.configure(bg="grey")
+    root = r
+    client = c
+    room_name = roomName
+    roomTopLevel = tk.Toplevel(root)
+    roomTopLevel.minsize(1080, 720)
+    roomTopLevel.title("Online Chat Room")
+    roomTopLevel.geometry("1080x720")
+    roomTopLevel.resizable(False, False)
+    roomTopLevel.configure(bg="grey")
     # Menu
-    menubar = tk.Menu(root)
+    menubar = tk.Menu(roomTopLevel)
     options_menu = tk.Menu(menubar, tearoff=0)
     menubar.add_cascade(label="Option", menu=options_menu)
     options_menu.add_command(label="Download Recording", command=downloadRecording)
     options_menu.add_separator()
     options_menu.add_command(label="Exit", command=Quit)
-    root.config(menu=menubar)
+    roomTopLevel.config(menu=menubar)
 
     # Room Meeting Frame
-    roomMeetingFrame = tk.Frame(root, bg="grey")
+    roomMeetingFrame = tk.Frame(roomTopLevel, bg="grey")
     roomMeetingFrame.pack(fill=tk.BOTH, expand=True)
 
     # Top——Room Name
@@ -93,12 +113,11 @@ def createGUI(client, roomName, name):
     member_canvas.pack(side=tk.LEFT, fill=tk.BOTH)
 
     # set text
-    mute_var.set("Mute")
     record_var.set("Start Record")
     status_var.set("")
+    mute_var.set("Mute")
 
-    # test
+    # --------------------------------------------------------------
+    # TODO: Get the total number of members in the room to set the GUI
+    # --------------------------------------------------------------
     createMember(name, 0, 0)
-
-
-    root.mainloop()
