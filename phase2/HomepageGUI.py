@@ -5,12 +5,14 @@ from tkinter import PhotoImage
 
 class HomepageGUI:
 
-    def __init__(self, EventHandler):
+    def __init__(self, EventHandler, client):
         self.eventHandler = EventHandler
+        self.client = client
         self.homepageFrame = None
         self.roomListFrame = None
         self.rooms_frame = None
         self.list_canvas = None
+        self.root = None
     
     def clickRoom(self, event, roomName, rooms_frame):
         self.eventHandler.setChoosenRoom(roomName)
@@ -34,36 +36,32 @@ class HomepageGUI:
         self.homepageFrame.pack(fill=tk.BOTH, expand=True)
         self.homepageFrame.update_idletasks()
 
-    #   TODO: join a room by its room name
     def JoinRoom(self): 
         roomName = self.eventHandler.getChoosenRoom()
-        print(roomName)
+        TopCheckGUI.TopCheckBox(self.root, "Join", self.client, roomName)
 
     def CreateCheck(self):
-        TopCheckGUI.TopCheckBox("Create")
+        TopCheckGUI.TopCheckBox(self.root, "Create", self.client)
 
     def JoinList(self):
         self.homepageFrame.pack_forget()
         self.roomListFrame.pack(fill=tk.BOTH, expand=True)
         self.roomListFrame.update_idletasks()
         self.eventHandler.start()
-        # TODO: call a function to search for rooms
-        self.eventHandler.foundNewRoom("Room1")
-        print("Room1")
-        self.eventHandler.foundNewRoom("Room2")
-        print("Room2")
-        self.eventHandler.foundNewRoom("Room3")
-        print("Room3")
+        roomList = self.client.get_room_list()
+        for room in roomList:
+            self.eventHandler.foundNewRoom(room)
+            print("Found new room: " + room)
 
     def createGUI(self):
-        root = tk.Tk()
-        root.minsize(1080, 720)
-        root.title("Online Chat Room")
-        root.geometry("1080x720")
-        root.resizable(False, False)
-        root.configure(bg="#2F5597")
+        self.root = tk.Tk()
+        self.root.minsize(1080, 720)
+        self.root.title("Online Chat Room")
+        self.root.geometry("1080x720")
+        self.root.resizable(False, False)
+        self.root.configure(bg="#2F5597")
         # Homepage Frame
-        self.homepageFrame = tk.Frame(root, bg="#2F5597")
+        self.homepageFrame = tk.Frame(self.root, bg="#2F5597")
         self.homepageFrame.pack(fill=tk.BOTH, expand=True)
         empty_label = tk.Label(self.homepageFrame, width=15, height=1, text="", font=("Arial", 60), bg="#2F5597", fg="#2F5597")
         empty_label.pack(side=tk.TOP, pady=5)
@@ -75,7 +73,7 @@ class HomepageGUI:
         join_button.pack(side=tk.TOP, pady=40)
 
         # Room List Frame
-        self.roomListFrame = tk.Frame(root, bg="#2F5597")
+        self.roomListFrame = tk.Frame(self.root, bg="#2F5597")
         title_label = tk.Label(self.roomListFrame, width=15, height=1, text="Room List", font=("Arial", 30), bg="#2F5597", fg="#ffffff", padx=0, pady=0, borderwidth=0, highlightthickness=0)
         title_label.pack(side=tk.TOP, pady=10)
         list_frame = tk.Frame(self.roomListFrame, width=800, height=450, bg="#BDD7EE", borderwidth=0, highlightthickness=0)
@@ -100,4 +98,4 @@ class HomepageGUI:
         join_button.pack(side=tk.RIGHT, padx=0)
 
         # text_Var.set("Finding Rooms...")
-        root.mainloop()
+        self.root.mainloop()
