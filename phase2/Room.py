@@ -11,3 +11,6 @@ class Room:
     def leaveMember(self, member):
         self.count += 1
         self.members.remove(member)
+        
+    def isEmpty(self):
+        return len(self.members) == 0

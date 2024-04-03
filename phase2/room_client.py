@@ -1,12 +1,11 @@
 from Room import Room
-from Member import Member, memberList
 import socket
 import threading
 import time
-#  CHAT ROOM NAME CANNOT CONTAIN '%', '#' and '@'
+#  CHAT ROOM NAME CANNOT CONTAIN '&', '%', '#' and '@' !!!
 ip = '127.0.0.1'
 port = 8888
-
+NUM_OF_THREADS = 2
 
 class Room_Client():
     def __init__(self, mem):
@@ -24,8 +23,6 @@ class Room_Client():
         # connect to server
         self.s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         self.s.connect((ip,port))
-        
-        # get connection results from server
         self.recv_from_srv()
 
     def create_room(self, name):
@@ -38,7 +35,8 @@ class Room_Client():
         self.s.send(str.encode(msg))
         res = self.recv_from_srv()
         for content in res:
-            if '%' in content:
+            if '&' in content:
+                content = content.replace('&','')
                 self.roomList = content.split('%')
         print('roomList in Client: ' + str(self.roomList))
 
@@ -56,7 +54,8 @@ class Room_Client():
     def end_connect(self):
         msg = 'e@'
         self.s.send(str.encode(msg))
-        self.s.close
+        self.recv_from_srv()
+        self.s.close()
 
     def recv_from_srv(self):
         buffer = []
@@ -69,18 +68,3 @@ class Room_Client():
             if(not '%' in msg): print(self.mem.name + ': '+  msg)
         return msgs
     
-    def wait_until(self, ret, init_val, timeout, period=0.25):
-        mustend = time.time() + timeout
-        while time.time() < mustend:
-            if ret != init_val: return True
-            time.sleep(period)
-        return False
-
-m1 = memberList[1]
-c1 = Room_Client(m1)
-c1.create_room('My Chat Room')
-c1.create_room('Chat Room 2')
-c1.get_room_list()
-c1.join_room('Special Room')
-c1.get_room_list()
-c1.end_connect()
