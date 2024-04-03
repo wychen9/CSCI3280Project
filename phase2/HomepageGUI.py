@@ -5,8 +5,9 @@ from tkinter import PhotoImage
 
 class HomepageGUI:
 
-    def __init__(self, EventHandler):
+    def __init__(self, EventHandler, client):
         self.eventHandler = EventHandler
+        self.client = client
         self.homepageFrame = None
         self.roomListFrame = None
         self.rooms_frame = None
@@ -40,7 +41,7 @@ class HomepageGUI:
         print(roomName)
 
     def CreateCheck(self):
-        TopCheckGUI.TopCheckBox("Create")
+        TopCheckGUI.TopCheckBox("Create", self.client)
 
     def JoinList(self):
         self.homepageFrame.pack_forget()
