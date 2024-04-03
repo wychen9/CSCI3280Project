@@ -10,6 +10,8 @@ NUM_OF_THREADS = 2
 class Room_Client():
     def __init__(self, mem):
         # mem - (Member)member logged in
+        # initialize the client program to connect to the server
+        # No return
         #
         # commands to server
         # c - create a new room
@@ -26,11 +28,15 @@ class Room_Client():
         self.recv_from_srv()
 
     def create_room(self, name):
+        # name - (String) room name
+        # send the name of the room you want to create
         msg = 'c#' + name + '#' + self.mem.id + '@'
         self.s.send(str.encode(msg))
         self.recv_from_srv()
     
     def get_room_list(self):
+        # get current room list
+        # return - (List) current room list
         msg = 'r@'
         self.s.send(str.encode(msg))
         res = self.recv_from_srv()
@@ -39,19 +45,24 @@ class Room_Client():
                 content = content.replace('&','')
                 self.roomList = content.split('%')
         print('roomList in Client: ' + str(self.roomList))
+        return self.roomList
 
     def join_room(self, roomName):
-
+        # roomName - (String) room name
+        # send the name of the room you want to join
         msg = 'j#'+roomName+'#'+ self.mem.id+ '@'
         self.s.send(str.encode(msg))
         self.recv_from_srv()
 
     def leave_room(self, roomName):
+        # roomName - (String) room name
+        # send the name of the room you want to leave
         msg = 'l#'+roomName+'#'+ self.mem.id+ '@'
         self.s.send(str.encode(msg))
         self.recv_from_srv()
     
-    def end_connect(self):
+    def exit(self):
+        # exit the program and close the connection with the server
         msg = 'e@'
         self.s.send(str.encode(msg))
         self.recv_from_srv()
@@ -67,4 +78,3 @@ class Room_Client():
         for msg in msgs:
             if(not '%' in msg): print(self.mem.name + ': '+  msg)
         return msgs
-    

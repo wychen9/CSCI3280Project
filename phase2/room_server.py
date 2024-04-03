@@ -60,8 +60,13 @@ class Room_Server():
                 
 
     def create_room(self, name, mem, sock):
-        # Develop a function that allows users to create a new chat room.
-        # This function should enable other computers on the same network to discover and access the created chat room
+        # name - (String) room name
+        # mem - (String) member id
+        # sock - socket channel
+        #
+        # create a new room with given name and add the member to the room
+        # if the name is already existed, nothing will be done.
+        # no return
         if(name in [r.roomName for r in self.roomList]):
             # self.join_room(name, mem, sock)
             msg = 'Room ' + name + ' has already existed.'+ '@'
@@ -75,12 +80,11 @@ class Room_Server():
 
             msg = 'New room ' + name + ' created.'+ '@'
             sock.send(str.encode(msg))
+        
             
 
     def get_room_list(self, sock):
-        # Implement a 'chat room list' feature that displays all the created chat rooms within the network. 
-        # This list will help users identify and select the chat room they wish to join
-        # return - return the room name when find a room
+        # return - return current room list
         roomNames = [r.roomName for r in self.roomList]
         msg = '%'.join(roomNames) + '&@'
         print("Current Room List: ")
@@ -90,8 +94,13 @@ class Room_Server():
         sock.send(str.encode(msg))
 
     def join_room(self, roomName, mem, sock):
-        # Create a function that enables users to join a selected chat room from the 'chat room list'. 
-        # This functionality should establish a connection with the chosen chat room, allowing users to participate in real-time communication.
+        # roomName - room name
+        # mem - member id
+        # sock - socket channel
+        #
+        # The user will be added to according room.
+        # If the user has already been in the room, no action will be taken.
+        # No return.
         if(roomName in [r.roomName for r in self.roomList]): 
             room = list(filter(lambda r: r.roomName == roomName,self.roomList))[0]
             member = memberList[int(mem)]
@@ -110,6 +119,13 @@ class Room_Server():
             sock.send(str.encode(msg))
 
     def leave_room(self, roomName, mem, sock):
+        # roomName - room name
+        # mem - member id
+        # sock - socket channel
+        #
+        # The user will be removed from according room.
+        # If the user has not been in the room, no action will be taken.
+        # No return.
         if(roomName in [r.roomName for r in self.roomList]): 
             room = list(filter(lambda r: r.roomName == roomName,self.roomList))[0]
             member = self.memberList[int(mem)]
@@ -130,6 +146,7 @@ class Room_Server():
             sock.send(str.encode(msg))
 
     def log_out(self, sock):
+        # end the connection session
         msg = 'Connection is closed from client side.@'
         sock.send(str.encode(msg))
         sock.close()
