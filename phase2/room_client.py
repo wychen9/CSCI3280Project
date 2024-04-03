@@ -1,7 +1,5 @@
 from Room import Room
 import socket
-import threading
-import time
 #  CHAT ROOM NAME CANNOT CONTAIN '&', '%', '#' and '@' !!!
 ip = '127.0.0.1'
 port = 8888
