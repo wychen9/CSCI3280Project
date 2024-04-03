@@ -35,6 +35,7 @@ def user_action(ind):
     c1.get_room_list()
     print("Sleeping......")
     time.sleep(10)
+    c1.get_room_count('Chat Room 2')
     c1.leave_room(m1.name + '\'s Chat Room')
     c1.leave_room('Chat Room 2')
     c1.leave_room('Special Room')

@@ -14,3 +14,6 @@ class Room:
         
     def isEmpty(self):
         return len(self.members) == 0
+    
+    def current_cnt(self):
+        return len(self.members)

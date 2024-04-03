@@ -52,6 +52,8 @@ class Room_Server():
                     self.leave_room(req[1], req[2], sock)
                 elif req[0] == 'r':
                     self.get_room_list(sock)
+                elif req[0] == 'n':
+                    self.get_room_count(req[1], sock)
                 elif req[0] == 'e':
                     self.log_out(sock)
                     flag = False
@@ -92,6 +94,17 @@ class Room_Server():
         print('members in rooms: ')
         print([[m.name for m in r.members] for r in self.roomList])
         sock.send(str.encode(msg))
+
+    def get_room_count(self, roomName, sock):
+        # return - return number of current members in the given room
+        if(roomName in [r.roomName for r in self.roomList]): 
+            room = list(filter(lambda r: r.roomName == roomName,self.roomList))[0]
+            msg = str(room.current_cnt())
+            sock.send(str.encode(msg))
+        else: 
+            msg = "No such room found."
+            print(msg)
+            sock.send(str.encode(msg))
 
     def join_room(self, roomName, mem, sock):
         # roomName - room name

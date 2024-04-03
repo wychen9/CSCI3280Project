@@ -43,6 +43,11 @@ class Room_Client():
                 self.roomList = content.split('%')
         print('roomList in Client: ' + str(self.roomList))
         return self.roomList
+    
+    def get_room_count(self, roomName):
+        msg = 'n#'+roomName+ '@'
+        self.s.send(str.encode(msg))
+        self.recv_from_srv()
 
     def join_room(self, roomName):
         # roomName - (String) room name
@@ -73,5 +78,5 @@ class Room_Client():
         msgs = str(data,'UTF-8').split('@')
         msgs = list(filter(lambda x: x!= '', msgs))
         for msg in msgs:
-            if(not '%' in msg): print(self.mem.name + ': '+  msg)
+            if(not '&' in msg): print(self.mem.name + ': '+  msg)
         return msgs
