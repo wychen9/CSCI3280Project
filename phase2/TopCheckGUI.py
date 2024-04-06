@@ -13,15 +13,16 @@ def JoinRoom():
     global root, topbox, name_entry, room_name_entry, room_name, title, client
     if not room_name:
         room_name = room_name_entry.get()
-    name = name_entry.get()
+    name = client.mem.getName()
     memberHandler = MemberEventHandler.EventHandler()
-    memberHandler.start()
     if title == "Create":
         print("Room "+ room_name + " Created!")
         print("Room Creator: " + name)
         client.create_room(room_name, memberHandler)
         topbox.destroy()
         RoomMeetingGUI.createGUI(root, client, room_name, name, memberHandler)
+        memberHandler.start()
+        print("Start Handler")
         
 
     elif title == "Join":
@@ -30,6 +31,8 @@ def JoinRoom():
         client.join_room(room_name, memberHandler)
         topbox.destroy()
         RoomMeetingGUI.createGUI(root, client, room_name, name, memberHandler)
+        memberHandler.start()
+        print("Start Handler")
         
 
 def Cancel():
@@ -44,7 +47,7 @@ def TopCheckBox(r, boxTitle, c, roomName=None):
     room_name = roomName
     topbox = tk.Toplevel(root)
     topbox.title(boxTitle)
-    topbox.geometry("300x200")
+    topbox.geometry("200x200")
     topbox.resizable(False, False)
     topbox.configure(bg="#f2f2f2")
 
@@ -57,9 +60,9 @@ def TopCheckBox(r, boxTitle, c, roomName=None):
         room_name_entry = tk.Entry(topbox, width=30, font=("Arial", 15), bg="#f2f2f2", fg="#000000")
         room_name_entry.pack(side=tk.TOP, pady=5)
         room_name_entry.insert(0, "Room Name")
-    name_entry = tk.Entry(topbox, width=30, font=("Arial", 15), bg="#f2f2f2", fg="#000000")
-    name_entry.pack(side=tk.TOP, pady=5)
-    name_entry.insert(0, "Your Name")
+    # name_entry = tk.Entry(topbox, width=30, font=("Arial", 15), bg="#f2f2f2", fg="#000000")
+    # name_entry.pack(side=tk.TOP, pady=5)
+    # name_entry.insert(0, "Your Name")
     optionFrame = tk.Frame(topbox)
     optionFrame.pack(side=tk.TOP, pady=20)
     cancel_button = tk.Button(optionFrame, text="Cancel", width=8, height=1, font=("Arial", 15), fg="#000000", bg="#5B9BD5", borderwidth=10, highlightthickness=0, highlightbackground="#F2F2F2", command=Cancel)
