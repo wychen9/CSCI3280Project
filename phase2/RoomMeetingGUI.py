@@ -35,7 +35,16 @@ def newMember(member):
     c = client.get_room_count(room_name)
     i = c // 3
     j = c % 3
-    createMember(member, i, j)
+    createMember(member.name, i, j)
+
+def leaveMember(member):
+    global member_scorll_frame, member_canvas
+    for widget in member_scorll_frame.winfo_children():
+        if widget.winfo_children()[1].cget("text") == member.name:
+            widget.destroy()
+            break
+    member_canvas.update_idletasks()
+    member_canvas.config(scrollregion=member_canvas.bbox("all"))
 
 # --------------------------------------------------------------
 # TODO: Mute or unmute
