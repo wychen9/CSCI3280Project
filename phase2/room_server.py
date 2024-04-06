@@ -74,6 +74,8 @@ class Room_Server():
                         self.get_room_list(sock)
                     elif req[0] == 'n':
                         self.get_room_count(req[1], sock)
+                    elif req[0] == 'm':
+                        self.get_member_count(req[1], sock)
                     elif req[0] == 'e':
                         self.log_out(sock)
                         flag = False
@@ -91,8 +93,7 @@ class Room_Server():
         sock = self.memberSockList[ind]
         if(name in [r.roomName for r in self.roomList]):
             # self.join_room(name, mem, sock)
-            msg = 'Room ' + name + ' has already existed.@'
-            sock.send(str.encode(msg))
+            msg = 'F&@'
         else:
             self.roomListLock.acquire()
             new_room = Room(name)
@@ -100,7 +101,10 @@ class Room_Server():
             self.roomList.append(new_room)
             self.roomListLock.release()
             self.inform_client('j', name, ind)
-        
+            msg = 'T&@'
+        # print('msg for create: ' + msg)
+        sock.send(str.encode(msg))
+
     def get_room_list(self, sock):
         # return - return current room list
         roomNames = [r.roomName for r in self.roomList]
@@ -122,6 +126,18 @@ class Room_Server():
             print(msg.replace('@',''))
             sock.send(str.encode(msg))
 
+    def get_member_count(self, roomName, sock):
+        # return - return number of current members in the given room
+        if(roomName in [r.roomName for r in self.roomList]): 
+            room = list(filter(lambda r: r.roomName == roomName,self.roomList))[0]
+            memberList = [m.name for m in room.members]
+            msg = '%'.join(memberList) + '&@'
+            sock.send(str.encode(msg))
+        else: 
+            msg = "No such room found.@"
+            print(msg.replace('@',''))
+            sock.send(str.encode(msg))
+
     def join_room(self, roomName, ind):
         # roomName - room name
         # mem - member id
@@ -135,7 +151,7 @@ class Room_Server():
             room = list(filter(lambda r: r.roomName == roomName,self.roomList))[0]
             member = memberList[ind]
             if(member in room.members):
-                msg = member.name + ' has already been in Room ' + roomName + '.@'
+                msg = 'F&@'
                 sock.send(str.encode(msg))
             else:
                 self.roomListLock.acquire()
@@ -143,9 +159,10 @@ class Room_Server():
                 self.roomListLock.release()
                 for member in room.members:
                     self.inform_client('j', roomName, int(member.id))
+                msg = 'T&@'
+                sock.send(str.encode(msg))
         else: 
-            msg = "No such room found.@"
-            print(msg.replace('@',''))
+            msg = 'F&@'
             sock.send(str.encode(msg))
 
     def leave_room(self, roomName, ind):
