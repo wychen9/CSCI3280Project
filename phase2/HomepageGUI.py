@@ -32,6 +32,8 @@ class HomepageGUI:
 
     def Cancel(self):
         self.eventHandler.stop()
+        for widget in self.rooms_frame.winfo_children():
+            widget.destroy()
         self.roomListFrame.pack_forget()
         self.homepageFrame.pack(fill=tk.BOTH, expand=True)
         self.homepageFrame.update_idletasks()
@@ -50,8 +52,9 @@ class HomepageGUI:
         self.eventHandler.start()
         roomList = self.client.get_room_list()
         for room in roomList:
-            self.eventHandler.foundNewRoom(room)
-            print("Found new room: " + room)
+            if room != "":
+                self.eventHandler.foundNewRoom(room)
+                print("Found new room: " + room)
 
     def createGUI(self):
         self.root = tk.Tk()

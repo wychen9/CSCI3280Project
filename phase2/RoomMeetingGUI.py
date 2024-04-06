@@ -1,13 +1,16 @@
 import tkinter as tk
+import MemberEventHandler
 
-root = None
+root, roomTopLevel = None, None
 client = None
-room_name = None
-root, member_canvas, member_scorll_frame = None, None, None
+memberHandler = None
+room_name, count, isFirst = None, None, True
+member_canvas, member_scorll_frame = None, None
 mute_var, record_var, status_var = None, None, None
+circle_canvas, circle = None, None
 
 def createMember(name, i, j):
-    global member_canvas, member_scorll_frame
+    global member_canvas, member_scorll_frame, circle_canvas, circle, count
     member_frame = tk.Frame(member_scorll_frame, width=280, height=220, bg="grey", borderwidth=0, highlightthickness=0)
     member_frame.grid(row=i, column=j, padx=30, pady=10)
     video_frame = tk.Frame(member_frame, width=280, height=180, bg="green", borderwidth=0, highlightthickness=0)
@@ -20,19 +23,31 @@ def createMember(name, i, j):
     name_label.place(relx=0.5, rely=0.5, anchor="center")
     mute_canvas = tk.Canvas(status_frame, width=30, height=30, bg="#ffffff", borderwidth=0, highlightthickness=0)
     mute_canvas.place(relx=0.5, rely=0.5, anchor="e", x=-50)
-    mute_canvas.create_oval(7, 7, 23, 23, fill="red", outline="white")
+    oval = mute_canvas.create_oval(7, 7, 23, 23, fill="red", outline="white")
+    if count == i*3 + j:
+        circle_canvas = mute_canvas
+        circle = oval
     member_canvas.update_idletasks()
     member_canvas.config(scrollregion=member_canvas.bbox("all"))
+
+def newMember(member):
+    global client, room_name
+    c = client.get_room_count(room_name)
+    i = c // 3
+    j = c % 3
+    createMember(member, i, j)
 
 # --------------------------------------------------------------
 # TODO: Mute or unmute
 # --------------------------------------------------------------
 def MuteOrUnmute():
-    global mute_var
+    global mute_var, circle_canvas, circle
     if mute_var.get() == "Mute":
         mute_var.set("Unmute")
+        circle_canvas.itemconfig(circle, fill="#ffffff")
     else:
         mute_var.set("Mute")
+        circle_canvas.itemconfig(circle, fill="red")
 
 # --------------------------------------------------------------
 # TODO: Start or stop recording
@@ -52,17 +67,29 @@ def StartOrStopRecord():
 def downloadRecording():
     print("Download recording")
 
+def startHandler(event):
+    global memberHandler, isFirst
+    if isFirst:
+        memberHandler = MemberEventHandler.EventHandler()
+        memberHandler.start()
+        print("Start Handler")
+        isFirst = False
+
 def Quit():
+    global root, client, room_name, memberHandler, roomTopLevel
     client.leave_room(room_name)
-    root.quit()
+    memberHandler.stop()
+    print("Stop Handler")
+    roomTopLevel.destroy()
 
 def createGUI(r, c, roomName, name):
-    global root, client, room_name, root, member_canvas, member_scorll_frame
+    global root, client, room_name, count, member_canvas, member_scorll_frame, roomTopLevel
     global mute_var, record_var, status_var
     root = r
     client = c
     room_name = roomName
     roomTopLevel = tk.Toplevel(root)
+    roomTopLevel.bind("<Map>", startHandler)
     roomTopLevel.minsize(1080, 720)
     roomTopLevel.title("Online Chat Room")
     roomTopLevel.geometry("1080x720")
@@ -118,6 +145,14 @@ def createGUI(r, c, roomName, name):
     mute_var.set("Mute")
 
     # --------------------------------------------------------------
-    # TODO: Get the total number of members in the room to set the GUI
+    # TODO: Get members'name in the room to set the GUI
     # --------------------------------------------------------------
-    createMember(name, 0, 0)
+    count = client.get_room_count(roomName)
+    tmp = count
+    while tmp > 0:
+        i = tmp // 3
+        j = tmp % 3
+        createMember(name, i, j)
+        tmp -= 1
+
+    roomTopLevel.protocol("WM_DELETE_WINDOW", Quit)
