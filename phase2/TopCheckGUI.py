@@ -1,6 +1,6 @@
 import tkinter as tk
 import RoomMeetingGUI
-
+import MemberEventHandler
 topbox = None
 name_entry = None
 romm_name_entry = None
@@ -14,20 +14,22 @@ def JoinRoom():
     if not room_name:
         room_name = room_name_entry.get()
     name = name_entry.get()
+    memberHandler = MemberEventHandler.EventHandler()
+    memberHandler.start()
     if title == "Create":
         print("Room "+ room_name + " Created!")
         print("Room Creator: " + name)
-        client.create_room(room_name)
+        client.create_room(room_name, memberHandler)
         topbox.destroy()
-        RoomMeetingGUI.createGUI(root, client, room_name, name)
+        RoomMeetingGUI.createGUI(root, client, room_name, name, memberHandler)
         
 
     elif title == "Join":
         print("Room "+ room_name + " Joined!")
         print("Room Joiner: " + name)
-        client.join_room(room_name)
+        client.join_room(room_name, memberHandler)
         topbox.destroy()
-        RoomMeetingGUI.createGUI(root, client, room_name, name)
+        RoomMeetingGUI.createGUI(root, client, room_name, name, memberHandler)
         
 
 def Cancel():

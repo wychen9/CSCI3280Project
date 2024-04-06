@@ -2,15 +2,15 @@ import tkinter as tk
 import MemberEventHandler
 
 root, roomTopLevel = None, None
-client = None
+client, memberList = None, None
 memberHandler = None
-room_name, count, isFirst = None, None, True
+curMembername, room_name, isFirst = None, None, True
 member_canvas, member_scorll_frame = None, None
 mute_var, record_var, status_var = None, None, None
 circle_canvas, circle = None, None
 
-def createMember(name, i, j):
-    global member_canvas, member_scorll_frame, circle_canvas, circle, count
+def createMember(name, i, j, isCurrent=False):
+    global member_canvas, member_scorll_frame, circle_canvas, circle
     member_frame = tk.Frame(member_scorll_frame, width=280, height=220, bg="grey", borderwidth=0, highlightthickness=0)
     member_frame.grid(row=i, column=j, padx=30, pady=10)
     video_frame = tk.Frame(member_frame, width=280, height=180, bg="green", borderwidth=0, highlightthickness=0)
@@ -24,7 +24,7 @@ def createMember(name, i, j):
     mute_canvas = tk.Canvas(status_frame, width=30, height=30, bg="#ffffff", borderwidth=0, highlightthickness=0)
     mute_canvas.place(relx=0.5, rely=0.5, anchor="e", x=-50)
     oval = mute_canvas.create_oval(7, 7, 23, 23, fill="red", outline="white")
-    if count == i*3 + j:
+    if isCurrent:
         circle_canvas = mute_canvas
         circle = oval
     member_canvas.update_idletasks()
@@ -35,16 +35,26 @@ def newMember(member):
     c = client.get_room_count(room_name)
     i = c // 3
     j = c % 3
-    createMember(member.name, i, j)
+    createMember(member, i, j)
 
 def leaveMember(member):
-    global member_scorll_frame, member_canvas
-    for widget in member_scorll_frame.winfo_children():
-        if widget.winfo_children()[1].cget("text") == member.name:
-            widget.destroy()
+    global memberList, room_name
+    memberList = client.get_member_list(room_name)
+    for i in range(len(memberList)):
+        if memberList[i] == member:
+            memberList.pop(i)
             break
-    member_canvas.update_idletasks()
-    member_canvas.config(scrollregion=member_canvas.bbox("all"))
+    assignMembers()
+
+def assignMembers():
+    global memberList, curMembername
+    for index in range(len(memberList)):
+        i = index // 3
+        j = index % 3
+        if memberList[index] == curMembername:
+            createMember(memberList[index], i, j, True)
+        else:
+            createMember(memberList[index], i, j)
 
 # --------------------------------------------------------------
 # TODO: Mute or unmute
@@ -76,13 +86,13 @@ def StartOrStopRecord():
 def downloadRecording():
     print("Download recording")
 
-def startHandler(event):
-    global memberHandler, isFirst
-    if isFirst:
-        memberHandler = MemberEventHandler.EventHandler()
-        memberHandler.start()
-        print("Start Handler")
-        isFirst = False
+# def startHandler(event):
+#     global memberHandler, isFirst
+#     if isFirst:
+#         memberHandler = MemberEventHandler.EventHandler()
+#         memberHandler.start()
+#         print("Start Handler")
+#         isFirst = False
 
 def Quit():
     global root, client, room_name, memberHandler, roomTopLevel
@@ -91,14 +101,16 @@ def Quit():
     print("Stop Handler")
     roomTopLevel.destroy()
 
-def createGUI(r, c, roomName, name):
-    global root, client, room_name, count, member_canvas, member_scorll_frame, roomTopLevel
+def createGUI(r, c, roomName, name, Handler):
+    global root, client, room_name, member_canvas, member_scorll_frame, roomTopLevel, memberList, curMembername, memberHandler
     global mute_var, record_var, status_var
     root = r
     client = c
     room_name = roomName
+    curMembername = name
+    memberHandler = Handler
     roomTopLevel = tk.Toplevel(root)
-    roomTopLevel.bind("<Map>", startHandler)
+    # roomTopLevel.bind("<Map>", startHandler)
     roomTopLevel.minsize(1080, 720)
     roomTopLevel.title("Online Chat Room")
     roomTopLevel.geometry("1080x720")
@@ -156,12 +168,7 @@ def createGUI(r, c, roomName, name):
     # --------------------------------------------------------------
     # TODO: Get members'name in the room to set the GUI
     # --------------------------------------------------------------
-    count = client.get_room_count(roomName)
-    tmp = count
-    while tmp > 0:
-        i = tmp // 3
-        j = tmp % 3
-        createMember(name, i, j)
-        tmp -= 1
+    memberList = client.get_member_list(roomName)
+    assignMembers()
 
     roomTopLevel.protocol("WM_DELETE_WINDOW", Quit)

@@ -13,6 +13,9 @@ class Member:
     def getName(self):
         return self.name
 
+    def setName(self, name):
+        self.name = name
+        
 # Predefined 10 users
 memberList = [] 
 for i in range(0,NUM_OF_USER):
