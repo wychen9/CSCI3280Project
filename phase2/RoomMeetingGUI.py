@@ -39,16 +39,19 @@ def newMember(member):
 
 def leaveMember(member):
     global memberList, room_name
+    print("Leave Member Before: ", memberList)
     memberList = client.get_member_list(room_name)
     for i in range(len(memberList)):
         if memberList[i] == member:
             memberList.pop(i)
             break
+    print("Leave Member: ", memberList)
     assignMembers()
 
 def assignMembers():
-    global memberList, curMembername
-    print(memberList)
+    global memberList, curMembername, member_scorll_frame
+    for widget in member_scorll_frame.winfo_children():
+        widget.destroy()
     for index in range(len(memberList)):
         i = index // 3
         j = index % 3

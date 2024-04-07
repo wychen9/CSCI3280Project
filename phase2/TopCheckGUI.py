@@ -48,14 +48,14 @@ def TopCheckBox(r, boxTitle, c, roomName=None):
     room_name = roomName
     topbox = tk.Toplevel(root)
     topbox.title(boxTitle)
-    topbox.geometry("200x200")
+    topbox.geometry("200x150")
     topbox.resizable(False, False)
     topbox.configure(bg="#f2f2f2")
 
     if boxTitle == "Join":
         empty_label = tk.Label(topbox, width=15, text="", font=("Arial", 6), bg="#F2F2F2", fg="#000000")
         empty_label.pack(side=tk.TOP, pady=0)
-        title_label = tk.Label(topbox, width=20, height=1, text="Join as", font=("Arial", 20), bg="#f2f2f2", fg="#000000")
+        title_label = tk.Label(topbox, width=20, height=1, text="Join Room?", font=("Arial", 20), bg="#f2f2f2", fg="#000000")
         title_label.pack(side=tk.TOP, anchor="nw", pady=10, fill=tk.X)
     if boxTitle == "Create":
         room_name_entry = tk.Entry(topbox, width=30, font=("Arial", 15), bg="#f2f2f2", fg="#000000")
@@ -66,8 +66,8 @@ def TopCheckBox(r, boxTitle, c, roomName=None):
     # name_entry.insert(0, "Your Name")
     optionFrame = tk.Frame(topbox)
     optionFrame.pack(side=tk.TOP, pady=20)
-    cancel_button = tk.Button(optionFrame, text="Cancel", width=8, height=1, font=("Arial", 15), fg="#000000", bg="#5B9BD5", borderwidth=10, highlightthickness=0, highlightbackground="#F2F2F2", command=Cancel)
+    cancel_button = tk.Button(optionFrame, text="Cancel", width=6, height=1, font=("Arial", 15), fg="#000000", bg="#5B9BD5", borderwidth=10, highlightthickness=0, highlightbackground="#F2F2F2", command=Cancel)
     cancel_button.pack(side=tk.LEFT, padx=0)
-    join_button = tk.Button(optionFrame, text="Join", width=8, height=1, font=("Arial", 15), fg="#000000", bg="#5B9BD5", borderwidth=10, highlightthickness=0, highlightbackground="#F2F2F2", command=JoinRoom)
+    join_button = tk.Button(optionFrame, text="Join", width=6, height=1, font=("Arial", 15), fg="#000000", bg="#5B9BD5", borderwidth=10, highlightthickness=0, highlightbackground="#F2F2F2", command=JoinRoom)
     join_button.pack(side=tk.RIGHT, padx=0)
     
