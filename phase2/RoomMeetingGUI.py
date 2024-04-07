@@ -35,7 +35,7 @@ def newMember(member):
     c = client.get_room_count(room_name)
     i = c // 3
     j = c % 3
-    createMember(member, i, j)
+    createMember(member.name, i, j)
 
 def leaveMember(member):
     global memberList, room_name
@@ -48,6 +48,7 @@ def leaveMember(member):
 
 def assignMembers():
     global memberList, curMembername
+    print(memberList)
     for index in range(len(memberList)):
         i = index // 3
         j = index % 3
@@ -169,6 +170,7 @@ def createGUI(r, c, roomName, name, Handler):
     # TODO: Get members'name in the room to set the GUI
     # --------------------------------------------------------------
     memberList = client.get_member_list(roomName)
-    assignMembers()
+    createMember(memberList[-1], 0, 0, True)
+    # assignMembers()
 
     roomTopLevel.protocol("WM_DELETE_WINDOW", Quit)

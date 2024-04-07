@@ -24,6 +24,7 @@ def JoinRoom():
         memberHandler.start()
         print("Start Handler")
         
+        
 
     elif title == "Join":
         print("Room "+ room_name + " Joined!")

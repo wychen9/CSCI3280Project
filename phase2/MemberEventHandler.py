@@ -23,9 +23,11 @@ class EventHandler:
             if self.queue.empty() is not True:
                 member = self.queue.get()
                 RoomMeetingGUI.newMember(member)
+                print("Handler: New member found!")
             if self.leaveQueue.empty() is not True:
                 member = self.leaveQueue.get()
                 RoomMeetingGUI.leaveMember(member)
+                print("Handler: New member leave!")
             
     def foundNewMember(self, member):
         self.queue.put(member)
