@@ -10,7 +10,7 @@ import sys
 ind = int(sys.argv[1])
 m1 = memberList[ind]
 c1 = Client(m1)
-server = audioserver.audioServer()
+# need to know the ip address of the server
 audio_client.control("start ip 9808")
 eventHandler = EventHandler.EventHandler()
 homepageGUI = HomepageGUI.HomepageGUI(eventHandler, c1)
