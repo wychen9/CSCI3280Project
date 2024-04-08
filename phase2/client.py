@@ -3,6 +3,7 @@ from Member import memberList
 import threading
 from queue import Queue
 import time
+import os
 #  CHAT ROOM NAME CANNOT CONTAIN '&', '%', '#' and '@' !!!
 ip = '127.0.0.1'
 port = 8888
@@ -236,6 +237,40 @@ class Client():
                     self.updateMsg.put(txt)
                 else:
                     return msg.replace('&', '')
+        
+    def upload_file(self, room_name, file_path):
+
+        if not os.path.isfile(file_path):
+            print(f"File not found: {file_path}.")
+            return
+        
+        # Lock the thread to send data to server
+        self.recvLock.acquire()
+
+        try:
+            # extract the file name from the file path
+            file_name = os.path.basename(file_path)
+            # read the file in binary mode
+            with open (file_path, 'rb') as file:
+                file_data = file.read()
+            
+            # create a msg for file upload
+            msg = f'u#{room_name}#{file_name}@{file_data}'
+
+            self.s.sendall(str.encode(msg))
+
+            ret = self.recv_from_srv(response=True)
+                #lock released
+
+            if ret == 'T':
+                print(f"File {file_name} has been uploaded to {room_name}.")
+            else:
+                print(f'Failed to upload file to {room_name}. Server response: {ret}')
+        
+        finally:
+            # always release the lock, even if an error occurred
+            self.recvLock.release()
+
         # try: 
         #     # time.sleep(1)
         #     d = self.s.recv(1024, socket.MSG_PEEK).decode('utf-8')
@@ -308,5 +343,7 @@ class Client():
             #         # buffer.append(d)
             #         # data = b''.join(buffer)
             #         # msg = str(data,'UTF-8')
+
+            #         # return msg.replace('@', '').replace('&', '')
 
             #         # return msg.replace('@', '').replace('&', '')
