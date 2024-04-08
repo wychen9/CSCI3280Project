@@ -16,7 +16,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.animation import FuncAnimation 
 
 DEFAULT_AUDIO_HEIGHT = 50
-local_time_delay = 22.5
+local_time_delay = 15
 SIGNAL_MAX = 8000
 SIGNAL_MIN = DEFAULT_AUDIO_HEIGHT * 2
 
@@ -105,7 +105,7 @@ class Visualization():
         # print("start point: " + str(self._secToFrameInd(offset)))
         # print("end point: " + str(endInd))
         print('time: ' + str(self.time[-1]))
-        print('y_lim: ' + str(self.signal_lim))
+        # print('y_lim: ' + str(self.signal_lim))
         if self.canvas: self.canvas.get_tk_widget().pack_forget()  # remove previous image
 
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.frame)

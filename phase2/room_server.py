@@ -3,9 +3,9 @@ from Member import memberList
 import sys, os
 import socket
 import threading
-ip = '127.0.0.1'
-port = 8888
 MAX_USER = 10
+ip = "127.0.0.1"
+port = 8888
 class Room_Server():
     def __init__(self):
         # roomList - save rooms on the server in list [Room objects]
@@ -17,12 +17,19 @@ class Room_Server():
         # % - list splitter
         self.roomList = []
         self.memberSockList = [None]*10
-        self.ip = socket.gethostbyname(socket.gethostname())
-        print("Server IP: ", self.ip)
-        print("Server port: ", port)
         self.s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+        ret = socket.gethostbyname_ex(socket.gethostname())
+        if(ret[2]!=[]): 
+            if(list(filter(lambda x: "127" not in x, ret[2]))!= []):
+                self.ip = list(filter(lambda x: "127" not in x, ret[2]))[0]
+                print("Server IP: ", list(filter(lambda x: "127" not in x, ret[2]))[0])
+                print("Server port: ", port)
+            else: self.ip =ip
+        else:
+            self.ip = ip
         self.s.bind((self.ip, port))
         self.s.listen(1)
+
         self.roomListLock = threading.Lock()
         self.sockListLock = threading.Lock()
         

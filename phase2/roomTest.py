@@ -32,7 +32,8 @@ def user_action(ind, ip):
 # when open the client program, need to choose which user is using, send an index in range [0,9]
 if __name__ == '__main__':
     ind = int(sys.argv[1])
-    ip = sys.argv[2]
+    ip = "127.0.0.1"
+    if(len(sys.argv)>2): ip = sys.argv[2]
     ## for test
     print(sys.argv)
     user_action(ind, ip)

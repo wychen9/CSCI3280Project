@@ -5,10 +5,9 @@ from queue import Queue
 import time
 import os
 #  CHAT ROOM NAME CANNOT CONTAIN '&', '%', '#' and '@' !!!
-ip = '127.0.0.1'
 
 class Room_Client():
-    def __init__(self, mem, ip, port = 8888):
+    def __init__(self, mem, ip = "127.0.0.1"):
         # mem - (Member)member logged in
         # initialize the client program to connect to the server
         # No return
@@ -22,18 +21,26 @@ class Room_Client():
         self.mem = mem
         self.roomList = []
         self.endFlag = False
+
         self.env = {} #{(str)roomName: (str)memberList}
         self.myRoomStates = {} #{(str)roomName: (MemberEventHandler)eventHandler}
         self.updateMsg = Queue()
         self.recvLock = threading.Lock()
         self.thds= []
 
-        self.port = port
+        self.port = 8888
         self.ip = ip
 
         # connect to server
         self.s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-        self.s.connect((self.ip,self.port))
+        while 1:
+            try:
+                self.s.connect((self.ip,self.port))
+                break
+            except Exception as e:
+                continue
+                # print("Couldn't connect to server")
+        
         self.s.settimeout(0.0)
         ind_msg = self.mem.id + '@'
         self.s.send(str.encode(ind_msg))
