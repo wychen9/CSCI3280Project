@@ -2,6 +2,8 @@ import tkinter as tk
 import RoomMeetingGUI
 import MemberEventHandler
 import audio_client
+import multiUsersRecorder
+
 topbox = None
 name_entry = None
 romm_name_entry = None
@@ -16,13 +18,14 @@ def JoinRoom():
         room_name = room_name_entry.get()
     name = client.mem.getName()
     memberHandler = MemberEventHandler.EventHandler()
+    chatRoomRecorder = multiUsersRecorder.ChatRoomRecorder()
     if title == "Create":
         print("Room "+ room_name + " Created!")
         print("Room Creator: " + name)
         client.create_room(room_name, memberHandler)
         audio_client.control("open mic")
         topbox.destroy()
-        RoomMeetingGUI.createGUI(root, client, room_name, name, memberHandler)
+        RoomMeetingGUI.createGUI(root, client, room_name, name, memberHandler, chatRoomRecorder)
         memberHandler.start()
         print("Start Handler")
         
@@ -34,7 +37,7 @@ def JoinRoom():
         client.join_room(room_name, memberHandler)
         audio_client.control("open mic")
         topbox.destroy()
-        RoomMeetingGUI.createGUI(root, client, room_name, name, memberHandler)
+        RoomMeetingGUI.createGUI(root, client, room_name, name, memberHandler, chatRoomRecorder)
         memberHandler.start()
         print("Start Handler")
         

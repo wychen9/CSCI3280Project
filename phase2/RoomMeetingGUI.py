@@ -1,10 +1,11 @@
 import tkinter as tk
 import MemberEventHandler
 import audio_client
+import multiUsersRecorder
 
 root, roomTopLevel = None, None
 client, memberList = None, None
-memberHandler = None
+memberHandler, chatRoomRecorder = None, None
 curMembername, room_name, isFirst = None, None, True
 member_canvas, member_scorll_frame = None, None
 mute_var, record_var, status_var = None, None, None
@@ -79,19 +80,23 @@ def MuteOrUnmute():
 # TODO: Start or stop recording
 # --------------------------------------------------------------
 def StartOrStopRecord():
-    global record_var, status_var
+    global record_var, status_var, chatRoomRecorder
     if record_var.get() == "Start Record":
         record_var.set("Stop Record")
         status_var.set("Recording...")
+        chatRoomRecorder.start_recording(room_name)
     else:
         record_var.set("Start Record")
         status_var.set("")
+        chatRoomRecorder.stop_recording(room_name)
 
 # --------------------------------------------------------------
 # TODO: Download recording file
 # --------------------------------------------------------------
 def downloadRecording():
+    global chatRoomRecorder
     print("Download recording")
+    chatRoomRecorder.get_recording_files(room_name)
 
 # def startHandler(event):
 #     global memberHandler, isFirst
@@ -109,14 +114,17 @@ def Quit():
     print("Stop Handler")
     roomTopLevel.destroy()
 
-def createGUI(r, c, roomName, name, Handler):
-    global root, client, room_name, member_canvas, member_scorll_frame, roomTopLevel, memberList, curMembername, memberHandler
+def createGUI(r, c, roomName, name, Handler, chatRecorder):
+    global root, client, room_name, member_canvas, member_scorll_frame, roomTopLevel, memberList, curMembername, memberHandler, chatRoomRecorder
     global mute_var, record_var, status_var
+    # set global variables
     root = r
     client = c
     room_name = roomName
     curMembername = name
     memberHandler = Handler
+    chatRoomRecorder = chatRecorder
+
     roomTopLevel = tk.Toplevel(root)
     # roomTopLevel.bind("<Map>", startHandler)
     roomTopLevel.minsize(1080, 720)
