@@ -82,11 +82,10 @@ class Client():
         send_thread = threading.Thread(target=self.send_data_to_server).start()
 
 
-def control():
-    audioserver = None
-    client = None
-    while True:
-        command = input("Enter command (start, open mic, close mic, exit):")
+
+def control(cmd):
+        command = cmd
+        #command = input("Enter command (start, open mic, close mic, exit):")
         if command.startswith("start"):
             _, ip, port = command.split()
             client = Client(ip, port)
@@ -94,14 +93,12 @@ def control():
         elif command in ["open mic", "close mic", "exit"]:
             if client is None:
                 print("Please start the client first.")
-                continue
             if command == "open mic":
                 client.open_mic()
             elif command == "close mic":
                 client.close_mic()
             elif command == "exit":
                 client.stop()
-                break
         else:
             print("Unknown command")
 
