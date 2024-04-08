@@ -20,15 +20,20 @@ class RecordingClient:
             try:
                 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                     sock.connect((SERVER_IP, SERVER_PORT))
+                    # send upload command and file metadata 
+                    file_name = os.path.basename(recording_file)
+                    file_size = os.path.getsize(recording_file)
+                    header = f"u#{self.room_name}#{file_name}#{file_size}".encode()
+                    sock.sendall(header)
                     with open(recording_file, 'rb') as f:
-                        file_data = f.read()
-                        # the protocol "u#room_name#file_name@file_data"
-                        file_name = os.path.basename(recording_file)
-                        message = f"u#{self.room_name}#{file_name}@".encode() + file_data
-                        sock.sendall(message)
+                        while True:
+                            chunk = f.read(4096)
+                            if not chunk:
+                                break
+                            sock.sendall(chunk)
                     print("sent to the server。")
             except Exception as e:
-                print(f"error in sending files：{e}")              
+                print(f"error in sending files: {e}")
         else:
             print("no recording file to upload")
       
@@ -38,16 +43,22 @@ class RecordingClient:
                 sock.connect((SERVER_IP, SERVER_PORT))
                 request_message = f"d#{self.room_name}#{file_name}".encode()
                 sock.sendall(request_message)
-                # assume that the file will fit into memory
-                file_data = sock.recv(1024 * 1024)
-                if file_data:
+                # Assume that the file will fit into memory
+                file_size = int(sock.recv(4096).decode())
+                if file_size:
                     with open(file_name, 'wb') as f:
-                        f.write(file_data)
+                        bytes_received = 0
+                        while bytes_received < file_size:
+                            chunk = sock.recv(min(4096, file_size - bytes_received))
+                            if not chunk:
+                                break
+                            f.write(chunk)
+                            bytes_received += len(chunk)
                     print(f"file {file_name} is downloaded。")
                 else:
                     print("error in downloading file")
         except Exception as e:
-            print(f"error in downloading file：{e}")
+            print(f"error in downloading file: {e}")
 
     
     def list_recordings(self):
@@ -56,7 +67,13 @@ class RecordingClient:
               sock.connect((SERVER_IP, SERVER_PORT))
               request_message = f"l#{self.room_name}".encode()
               sock.sendall(request_message)
-              recordings_list = sock.recv(1024).decode()
-              print(f"room '{self.room_name}' with recording lists：\n{recordings_list}")
+              sock.shutdown(socket.SHUT_WR) # indicates no more sending
+              recordings_list = ""
+              while True:
+                  chunk = sock.recv(4096)
+                  if not chunk:
+                      break
+                  recordings_list += chunk.decode()
+              print(f"room '{self.room_name}' with recording lists:\n{recordings_list}")
       except Exception as e:
-          print(f"broken files：{e}")
+          print(f"broken files:{e}")
