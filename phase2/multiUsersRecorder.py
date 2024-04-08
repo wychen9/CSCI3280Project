@@ -103,6 +103,9 @@ class AudioRecorder:
 class ChatRoomRecorder:
     def __init__(self):
         self.room_recorders = {}  # {room_name: AudioRecorder instance}
+        self.shared_dir = "shared_recordings"
+        if not os.path.exists(self.shared_dir):
+            os.makedirs(self.shared_dir)
 
     def start_recording(self, room_name):
         # start recording for the specified room
@@ -120,7 +123,7 @@ class ChatRoomRecorder:
 
     def get_recording_files(self, room_name):
         # get a list of recorded audio files for the specified room
-        shared_dir = "shared_recordings"
-        files = os.listdir(shared_dir)
-        room_files = [f for f in files if room_name in f]
+        # shared_dir = "shared_recordings"
+        files = os.listdir(self.shared_dir)
+        room_files = [os.path.join(self.shared_dir, f) for f in files if room_name in f]
         return room_files
