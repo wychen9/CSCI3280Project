@@ -1,4 +1,3 @@
-
 import socket
 import threading
 import pyaudio
@@ -28,7 +27,7 @@ class Client():
                                             frames_per_buffer=chunk_size)
 
         self.mic_open = True
-        self.running = True
+        self.running = True 
         print("Connected to Server")
 
     def init_audio(self):
@@ -51,6 +50,12 @@ class Client():
             except:
                 pass
 
+    def join_room(self, room):
+        self.s.sendall(("join:" + room).encode())
+
+    def leave_room(self, room):
+        self.s.sendall(("leave:" + room).encode())
+
     def send_data_to_server(self):
         while self.running:
             if self.mic_open:
@@ -72,7 +77,7 @@ class Client():
         self.mic_open = False
 
 
-    def stop(self):  # add this method
+    def stop(self):
         self.running = False
         self.s.close()
         self.p.terminate()
@@ -81,28 +86,79 @@ class Client():
         receive_thread = threading.Thread(target=self.receive_server_data).start()
         send_thread = threading.Thread(target=self.send_data_to_server).start()
 
-
-
-def control(cmd):
-        command = cmd
-        #command = input("Enter command (start, open mic, close mic, exit):")
+def test():
+    client = None
+    while True:
+        command = input("Enter command (start, open mic, close mic, join, leave, exit):")
         if command.startswith("start"):
             _, ip, port = command.split()
             client = Client(ip, port)
-            client.run()
-        elif command in ["open mic", "close mic", "exit"]:
+            
+        elif command.startswith("join"):
+            _, room = command.split()
             if client is None:
                 print("Please start the client first.")
+            else:
+                client.join_room(room)
+                client.run()
+        elif command.startswith("leave"):
+            _, room = command.split()
+            if client is None:
+                print("Please start the client first.")
+            else:
+                client.leave_room(room)
+                client.stop()
+        elif command in ["open mic", "close mic"]:
+            if client is None:
+                print("Please start the client first.")
+            elif command == "open mic":
+                client.open_mic()
+            elif command == "close mic":
+                client.close_mic()
+        elif command == "exit":
+            if client is not None:
+                client.stop()
+            break
+        else:
+            print("Unknown command")
+
+#client = None
+
+def control(cmd):
+    global client
+    command = cmd
+    if command.startswith("start"):
+        _, ip, port = command.split()
+        client = Client(ip, port)
+        
+    elif command.startswith("join"):
+        _, room = command.split()
+        if client is None:
+            print("Please start the client first.")
+        else:
+            client.join_room(room)
+            client.run()
+    elif command.startswith("leave"):
+        _, room = command.split()
+        if client is None:
+            print("Please start the client first.")
+        else:
+            client.leave_room(room)
+            client.stop()
+    elif command in ["open mic", "close mic", "exit"]:
+        if client is None:
+            print("Please start the client first.")
+        else:
             if command == "open mic":
                 client.open_mic()
             elif command == "close mic":
                 client.close_mic()
             elif command == "exit":
                 client.stop()
-        else:
-            print("Unknown command")
-
+    else:
+        print("Unknown command")
 
 if __name__ == '__main__':
-    control()
+    test()
     #create_server(audioserver)
+

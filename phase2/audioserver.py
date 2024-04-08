@@ -1,4 +1,3 @@
-
 import socket
 import threading
 import numpy as np
@@ -17,11 +16,9 @@ class audioServer:
             except:
                 print("Couldn't bind to that port")
 
-        self.audio_buffer = []
+        self.rooms = {} 
         self.connections = []
-        # self.stream = sd.OutputStream(callback=self.audio_callback)
-        # self.stream.start()
-        self.running = True  # add this line
+        self.running = True
         self.accept_connections()
 
     def accept_connections(self):
@@ -41,24 +38,36 @@ class audioServer:
                 ),
             ).start()
 
-    def broadcast(self, sock, data):
-        for client in self.connections:
-            if client != self.s and client != sock:
+    def broadcast(self, room, sock, data):
+        for client in self.rooms[room]:
+            if client != sock:
                 try:
                     client.send(data)
                 except:
                     pass
 
     def handle_client(self, c, addr):
+        room = None
         while 1:
             try:
                 data = c.recv(1024)
-                # print(data)
-                # self.audio_buffer.append(data)
-                self.broadcast(c, data)
+                if data.startswith("join:"):
+                    room = data.split(":")[1]
+                    if room not in self.rooms:
+                        self.rooms[room] = []
+                    self.rooms[room].append(c)
+                elif data.startswith("leave:"):
+                    room = data.split(":")[1]
+                    self.rooms[room].remove(c)
+                    room = None
+                else:
+                    if room is not None:
+                        self.broadcast(room, c, data)
 
             except socket.error:
                 c.close()
+                if room is not None:
+                    self.rooms[room].remove(c)
 
     def close(self):
         self.running = False
@@ -68,5 +77,4 @@ class audioServer:
 
 
 server = audioServer()
-
 
