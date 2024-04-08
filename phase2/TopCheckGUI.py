@@ -1,6 +1,7 @@
 import tkinter as tk
 import RoomMeetingGUI
 import MemberEventHandler
+import audio_client
 topbox = None
 name_entry = None
 romm_name_entry = None
@@ -19,6 +20,7 @@ def JoinRoom():
         print("Room "+ room_name + " Created!")
         print("Room Creator: " + name)
         client.create_room(room_name, memberHandler)
+        audio_client.control("open mic")
         topbox.destroy()
         RoomMeetingGUI.createGUI(root, client, room_name, name, memberHandler)
         memberHandler.start()
@@ -30,6 +32,7 @@ def JoinRoom():
         print("Room "+ room_name + " Joined!")
         print("Room Joiner: " + name)
         client.join_room(room_name, memberHandler)
+        audio_client.control("open mic")
         topbox.destroy()
         RoomMeetingGUI.createGUI(root, client, room_name, name, memberHandler)
         memberHandler.start()

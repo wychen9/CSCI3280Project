@@ -1,5 +1,6 @@
 import tkinter as tk
 import MemberEventHandler
+import audio_client
 
 root, roomTopLevel = None, None
 client, memberList = None, None
@@ -67,9 +68,11 @@ def MuteOrUnmute():
     global mute_var, circle_canvas, circle
     if mute_var.get() == "Mute":
         mute_var.set("Unmute")
+        audio_client.control("close mic")
         circle_canvas.itemconfig(circle, fill="#ffffff")
     else:
         mute_var.set("Mute")
+        audio_client.control("open mic")
         circle_canvas.itemconfig(circle, fill="red")
 
 # --------------------------------------------------------------
@@ -100,6 +103,7 @@ def downloadRecording():
 
 def Quit():
     global root, client, room_name, memberHandler, roomTopLevel
+    audio_client.control("close mic")
     client.leave_room(room_name)
     memberHandler.stop()
     print("Stop Handler")
