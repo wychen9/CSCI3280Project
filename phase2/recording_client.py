@@ -31,6 +31,7 @@ class RecordingClient:
                             if not chunk:
                                 break
                             sock.sendall(chunk)
+                    sock.shutdown(socket.SHUT_WR)
                     print("sent to the server。")
             except Exception as e:
                 print(f"error in sending files: {e}")
@@ -65,6 +66,7 @@ class RecordingClient:
       try:
           with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
               sock.connect((SERVER_IP, SERVER_PORT))
+              # send upload command and file metadata
               request_message = f"l#{self.room_name}".encode()
               sock.sendall(request_message)
               sock.shutdown(socket.SHUT_WR) # indicates no more sending
@@ -77,3 +79,11 @@ class RecordingClient:
               print(f"room '{self.room_name}' with recording lists:\n{recordings_list}")
       except Exception as e:
           print(f"broken files:{e}")
+
+'''
+if __name__ == '__main__':
+    client = RecordingClient("my_room_name")
+    client.start_recording()
+
+    client.stop_and_upload_recording()
+'''
