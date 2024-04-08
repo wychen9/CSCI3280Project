@@ -8,7 +8,7 @@ import os
 ip = '127.0.0.1'
 port = 8888
 
-class Client():
+class Room_Client():
     def __init__(self, mem):
         # mem - (Member)member logged in
         # initialize the client program to connect to the server

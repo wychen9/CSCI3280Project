@@ -1,13 +1,13 @@
 from MemberEventHandler import EventHandler
 from Member import memberList
-from client import Client
+from client import Room_Client
 import sys
 import time
 
 
 def user_action(ind):
     m1 = memberList[ind]
-    c1 = Client(m1)
+    c1 = Room_Client(m1)
 
     h1 = EventHandler()
     h2 = EventHandler()
