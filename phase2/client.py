@@ -3,7 +3,6 @@ from Member import memberList
 import threading
 from queue import Queue
 import time
-from multiUsersRecorder import ChatRoomRecorder
 #  CHAT ROOM NAME CANNOT CONTAIN '&', '%', '#' and '@' !!!
 ip = '127.0.0.1'
 port = 8888
@@ -28,7 +27,6 @@ class Client():
         self.updateMsg = Queue()
         self.recvLock = threading.Lock()
         self.thds= []
-        self.recorder = ChatRoomRecorder()
 
         # connect to server
         self.s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
@@ -106,7 +104,7 @@ class Client():
         self.recvLock.release()
         print('ret: ' + str(ret))
         if(ret == 'T'): 
-            self.myRoomStates[name] = RecordingEventHandler(name, self)
+            self.myRoomStates[name] = handler
             print(name + ' has been created.')
         else: print(self.mem.name + ': ' + name + ' has already existed.')
     
@@ -119,7 +117,7 @@ class Client():
         ret = self.recv_from_srv(response=True)
         self.recvLock.release()
         if(ret == 'T'): 
-            self.myRoomStates[roomName] = RecordingEventHandler(roomName, self)
+            self.myRoomStates[roomName] = handler
             print('You have joined ' + roomName + '.')
         else: print(self.mem.name + ': ' + roomName + ' does not exist or you have already been in the room.')
 
@@ -130,9 +128,6 @@ class Client():
         msg = 'l#'+roomName+'#'+ self.mem.id+ '@'
         self.s.send(str.encode(msg))
         self.recvLock.release()
-        
-    def get_recording_files(self, room_name):
-        return self.recorder.get_recording_files(room_name)
     
     def exit(self):
         # exit the program and close the connection with the server
@@ -315,19 +310,3 @@ class Client():
             #         # msg = str(data,'UTF-8')
 
             #         # return msg.replace('@', '').replace('&', '')
-
-class RecordingEventHandler:
-    def __init__(self, room_name, client):
-        self.room_name = room_name
-        self.client = client
-        self.is_recording = False
-    
-    def start_recording(self):
-        self.client.recorder.start_recording(self.room_name)
-        self.is_recording = True
-        print(f"Recording started for room: {self.room_name}")
-
-    def stop_recording(self):
-        file_path = self.client.recorder.stop_recording(self.room_name)
-        self.is_recording = False
-        print(f"Recording stopped for room: {self.room_name}. File saved: {file_path}")
