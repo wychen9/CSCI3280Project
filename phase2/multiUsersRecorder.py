@@ -101,41 +101,26 @@ class AudioRecorder:
         return wave_output_filename
 
 class ChatRoomRecorder:
-    def __init__(self, shared_dir):
+    def __init__(self):
         self.room_recorders = {}  # {room_name: AudioRecorder instance}
-        self.shared_dir = shared_dir # Iniitialie shared_dir from the passed argument
 
     def start_recording(self, room_name):
         # start recording for the specified room
         if room_name not in self.room_recorders:
             self.room_recorders[room_name] = AudioRecorder()
-        recorder = self.room_recorders[room_name]
-        recorder.start_recording(os.path.join(self.get_shared_recordings_dir(), room_name))
+        self.room_recorders[room_name].start_recording()
 
     def stop_recording(self, room_name):
         # stop recording and save the recorded audio for the specified room
         if room_name in self.room_recorders:
-            recorder = self.room_recorders[room_name]
-            recorder.stop_recording() # assuming this method stops the recording and saves the file
-            del self.room_recorders[room_name]
+            return self.room_recorders[room_name].stop_recording()
+        else:
+            print(f"No active recording for room: {room_name}")
+            return None
 
-    def list_recording(self):
-        try:
-            return os.listdir(self.get_shared_recordings_dir())
-        except OSError as e:
-            print(f"Error listing shared recordings: {e}")
-            return []
-        
     def get_recording_files(self, room_name):
         # get a list of recorded audio files for the specified room
         shared_dir = "shared_recordings"
         files = os.listdir(shared_dir)
         room_files = [f for f in files if room_name in f]
         return room_files
-    
-    def get_shared_recordings_dir(self):
-        if not os.path.exists(self.shared_dir):
-            os.makedirs(self.shared_dir)
-            # set the permission to ensure all users can access the directory
-            os.chmod(self.shared_dir, 0o777)
-        return self.shared_dir
