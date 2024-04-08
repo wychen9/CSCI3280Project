@@ -1,11 +1,9 @@
-import requests
 import os
-import wave
-from multiUsersRecorder import AudioRecorder, ChatRoomRecorder
+import socket
+from multiUsersRecorder import ChatRoomRecorder
 
 SERVER_IP = '127.0.0.1'
 SERVER_PORT = 8888
-SERVER_URL = f"http://{SERVER_IP}:{SERVER_PORT}"
 
 class RecordingClient:
     def __init__(self, room_name):
@@ -19,28 +17,46 @@ class RecordingClient:
     def stop_and_upload_recording(self):
         recording_file = self.chat_room_recorder.stop_recording(self.room_name)
         if recording_file:
-            with open(recording_file, 'rb') as f:
-                files = {'file': f}
-                response = requests.post(f"{SERVER_URL}/upload", files=files)
-                if response.status_code == 200:
-                    print("Recording uploaded successfully")
-                else:
-                    print("Failed to upload recording")
+            try:
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                    sock.connect((SERVER_IP, SERVER_PORT))
+                    with open(recording_file, 'rb') as f:
+                        file_data = f.read()
+                        # the protocol "u#room_name#file_name@file_data"
+                        file_name = os.path.basename(recording_file)
+                        message = f"u#{self.room_name}#{file_name}@".encode() + file_data
+                        sock.sendall(message)
+                    print("sent to the server。")
+            except Exception as e:
+                print(f"error in sending files：{e}")              
         else:
-            print("No recording to upload")
+            print("no recording file to upload")
       
     def download_recording(self, file_name):
-        response = requests.get(f"{SERVER_URL}/download/{file_name}")
-        if response.status_code == 200:
-            with open(file_name, 'wb') as f:
-                f.write(response.content)
-            print(f"Recording downloaded successfully: {file_name}")
-        else: 
-            print("Failed to download recording")
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                sock.connect((SERVER_IP, SERVER_PORT))
+                request_message = f"d#{self.room_name}#{file_name}".encode()
+                sock.sendall(request_message)
+                # assume that the file will fit into memory
+                file_data = sock.recv(1024 * 1024)
+                if file_data:
+                    with open(file_name, 'wb') as f:
+                        f.write(file_data)
+                    print(f"file {file_name} is downloaded。")
+                else:
+                    print("error in downloading file")
+        except Exception as e:
+            print(f"error in downloading file：{e}")
+
     
-    def list_recording(self):
-        response = requests.get("{SERVER_URL}")
-        if response.status_code == 200:
-            print("Available recordings:", response.text)
-        else:
-            print("Failed to list recordings.")
+    def list_recordings(self):
+      try:
+          with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+              sock.connect((SERVER_IP, SERVER_PORT))
+              request_message = f"l#{self.room_name}".encode()
+              sock.sendall(request_message)
+              recordings_list = sock.recv(1024).decode()
+              print(f"room '{self.room_name}' with recording lists：\n{recordings_list}")
+      except Exception as e:
+          print(f"broken files：{e}")
