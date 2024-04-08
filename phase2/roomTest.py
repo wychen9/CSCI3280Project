@@ -34,6 +34,7 @@ if __name__ == '__main__':
     ind = int(sys.argv[1])
     ip = sys.argv[2]
     ## for test
+    print(sys.argv)
     user_action(ind, ip)
     
     ## possible user actions: create, join, leave, get room list, exit.
