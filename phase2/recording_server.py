@@ -2,6 +2,7 @@ import http.server
 import socketserver
 import os
 
+ip = '127.0.0.1'
 PORT = 8888
 DIRECTORY = "shared_recordings"
 
