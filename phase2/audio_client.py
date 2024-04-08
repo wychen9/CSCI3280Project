@@ -28,10 +28,10 @@ class Client():
                                             frames_per_buffer=chunk_size)
 
         self.mic_open = True
-        self.running = True  # add this line
+        self.running = True
         print("Connected to Server")
 
-    def init_audio(self):  # add this method
+    def init_audio(self):
         chunk_size = 1024
         audio_format = pyaudio.paInt16
         channels = 1
@@ -44,7 +44,7 @@ class Client():
 
 
     def receive_server_data(self):
-        while self.running:  # change this line
+        while self.running:
             try:
                 data = self.s.recv(1024)
                 self.playing_stream.write(data)
