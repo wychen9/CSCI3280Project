@@ -17,8 +17,11 @@ class Room_Server():
         # % - list splitter
         self.roomList = []
         self.memberSockList = [None]*10
+        self.ip = socket.gethostbyname(socket.gethostname())
+        print("Server IP: ", self.ip)
+        print("Server port: ", port)
         self.s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-        self.s.bind((ip, port))
+        self.s.bind((self.ip, port))
         self.s.listen(1)
         self.roomListLock = threading.Lock()
         self.sockListLock = threading.Lock()

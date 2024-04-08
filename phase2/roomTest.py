@@ -1,13 +1,13 @@
 from MemberEventHandler import EventHandler
 from Member import memberList
-from client import Room_Client
+from room_client import Room_Client
 import sys
 import time
 
 
-def user_action(ind):
+def user_action(ind, ip):
     m1 = memberList[ind]
-    c1 = Room_Client(m1)
+    c1 = Room_Client(m1, ip)
 
     h1 = EventHandler()
     h2 = EventHandler()
@@ -32,8 +32,9 @@ def user_action(ind):
 # when open the client program, need to choose which user is using, send an index in range [0,9]
 if __name__ == '__main__':
     ind = int(sys.argv[1])
+    ip = sys.argv[2]
     ## for test
-    user_action(ind)
+    user_action(ind, ip)
     
     ## possible user actions: create, join, leave, get room list, exit.
     # m1 = memberList[ind] # member using the program

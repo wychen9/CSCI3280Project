@@ -6,10 +6,9 @@ import time
 import os
 #  CHAT ROOM NAME CANNOT CONTAIN '&', '%', '#' and '@' !!!
 ip = '127.0.0.1'
-port = 8888
 
 class Room_Client():
-    def __init__(self, mem):
+    def __init__(self, mem, ip, port = 8888):
         # mem - (Member)member logged in
         # initialize the client program to connect to the server
         # No return
@@ -29,9 +28,12 @@ class Room_Client():
         self.recvLock = threading.Lock()
         self.thds= []
 
+        self.port = port
+        self.ip = ip
+
         # connect to server
         self.s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-        self.s.connect((ip,port))
+        self.s.connect((self.ip,self.port))
         self.s.settimeout(0.0)
         ind_msg = self.mem.id + '@'
         self.s.send(str.encode(ind_msg))

@@ -2,7 +2,7 @@ import HomepageGUI
 import EventHandler
 import audioserver
 import audio_client
-from client import Room_Client
+from phase2.room_client import Room_Client
 from Member import memberList
 
 import sys
