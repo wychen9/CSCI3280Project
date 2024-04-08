@@ -158,7 +158,4 @@ def control(cmd):
     else:
         print("Unknown command")
 
-if __name__ == '__main__':
-    test()
-    #create_server(audioserver)
 

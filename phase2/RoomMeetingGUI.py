@@ -2,6 +2,7 @@ import tkinter as tk
 import MemberEventHandler
 import audio_client
 import multiUsersRecorder
+from tkinter import messagebox
 
 root, roomTopLevel = None, None
 client, memberList = None, None
@@ -97,6 +98,7 @@ def downloadRecording():
     global chatRoomRecorder
     print("Download recording")
     chatRoomRecorder.get_recording_files(room_name)
+    messagebox.showinfo("Hint", "Recording files have been downloaded to the root folder.")
 
 # def startHandler(event):
 #     global memberHandler, isFirst
