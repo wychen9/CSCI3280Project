@@ -111,6 +111,7 @@ def downloadRecording():
 def Quit():
     global root, client, room_name, memberHandler, roomTopLevel
     audio_client.control("close mic")
+    audio_client.control("leave "+room_name)
     client.leave_room(room_name)
     memberHandler.stop()
     print("Stop Handler")

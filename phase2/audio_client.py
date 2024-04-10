@@ -2,7 +2,7 @@ import socket
 import threading
 import pyaudio
 import time
-import opuslib
+# import opuslib
 
 class Client():
     def __init__(self, target_ip, target_port):

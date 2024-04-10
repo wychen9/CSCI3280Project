@@ -23,6 +23,7 @@ def JoinRoom():
         print("Room "+ room_name + " Created!")
         print("Room Creator: " + name)
         client.create_room(room_name, memberHandler)
+        audio_client.control("join "+ room_name)
         audio_client.control("open mic")
         topbox.destroy()
         RoomMeetingGUI.createGUI(root, client, room_name, name, memberHandler, chatRoomRecorder)
