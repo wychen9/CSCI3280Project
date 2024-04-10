@@ -1,6 +1,6 @@
 import socket
 import threading
-import numpy as np
+import opuslib
 
 
 class audioServer:
@@ -19,6 +19,10 @@ class audioServer:
         self.rooms = {} 
         self.connections = []
         self.running = True
+
+        # self.encoder = opuslib.Encoder(48000, 2, opuslib.APPLICATION_AUDIO)
+        # self.decoder = opuslib.Decoder(48000, 2)
+
         self.accept_connections()
 
     def accept_connections(self):
@@ -39,10 +43,12 @@ class audioServer:
             ).start()
 
     def broadcast(self, room, sock, data):
+        #opus_data = self.encoder.encode(data, 960)
         for client in self.rooms[room]:
             if client != sock:
                 try:
                     client.send(data)
+                    print(f"Broadcasted data to client {client.getpeername()} in room {room}")
                 except:
                     pass
 
@@ -51,17 +57,19 @@ class audioServer:
         while 1:
             try:
                 data = c.recv(1024)
-                if data.startswith("join:"):
-                    room = data.split(":")[1]
+                if data.startswith(b"join:"):
+                    room = data.split(b":")[1].decode()
                     if room not in self.rooms:
                         self.rooms[room] = []
                     self.rooms[room].append(c)
-                elif data.startswith("leave:"):
-                    room = data.split(":")[1]
+                    print(f"Client {addr} has joined room {room}")
+                elif data.startswith(b"leave:"):
+                    room = data.split(b":")[1].decode()
                     self.rooms[room].remove(c)
                     room = None
                 else:
                     if room is not None:
+                        #pcm_data = self.decoder.decode(data, 960)
                         self.broadcast(room, c, data)
 
             except socket.error:

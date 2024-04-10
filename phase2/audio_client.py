@@ -2,6 +2,7 @@ import socket
 import threading
 import pyaudio
 import time
+import opuslib
 
 class Client():
     def __init__(self, target_ip, target_port):
@@ -27,7 +28,9 @@ class Client():
                                             frames_per_buffer=chunk_size)
 
         self.mic_open = True
-        self.running = True 
+        self.running = True
+        # self.encoder = opuslib.Encoder(48000, 2, opuslib.APPLICATION_AUDIO)
+        # self.decoder = opuslib.Decoder(48000, 2)
         print("Connected to Server")
 
     def init_audio(self):
@@ -46,6 +49,7 @@ class Client():
         while self.running:
             try:
                 data = self.s.recv(1024)
+                #pcm_data = self.decoder.decode(data, 960)
                 self.playing_stream.write(data)
             except:
                 pass
@@ -62,6 +66,7 @@ class Client():
                 try:
                     #print("Mic is open")
                     data = self.recording_stream.read(1024)
+                    #opus_data = self.encoder.encode(data, 960)
                     self.s.sendall(data)
                 except:
                     pass
@@ -158,4 +163,5 @@ def control(cmd):
     else:
         print("Unknown command")
 
-
+if __name__ == "__main__":
+    test()
