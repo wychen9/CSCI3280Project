@@ -23,6 +23,12 @@ class HomepageGUI:
                 label.configure(bg="#ffffff")
 
     def newRoom(self, roomName):
+        count = 0
+        for rooms in self.client.get_room_list():
+            if rooms == roomName:
+                count += 1
+        if count > 1:
+            return
         print("New Room: " + roomName)
         room_label = tk.Label(self.rooms_frame, width=70, height=2, text=roomName, font=("Arial", 20), bg="#ffffff", fg="#000000")
         room_label.pack(side=tk.BOTTOM, fill=tk.X, pady=3)
