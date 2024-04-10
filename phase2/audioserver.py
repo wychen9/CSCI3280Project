@@ -1,12 +1,13 @@
 import socket
 import threading
-import opuslib
+#import opuslib
 
 
 class audioServer:
     def __init__(self):
         self.ip = socket.gethostbyname(socket.gethostname())
-        print(self.ip)
+        #self.ip = "10.13.79.153"
+        #print(self.ip)
         while True:
             try:
                 self.port = 9808
@@ -34,6 +35,7 @@ class audioServer:
         while self.running:
             c, addr = self.s.accept()
             self.connections.append(c)
+            print(f'Client {addr} connected')
             threading.Thread(
                 target=self.handle_client,
                 args=(
@@ -48,7 +50,7 @@ class audioServer:
             if client != sock:
                 try:
                     client.send(data)
-                    print(f"Broadcasted data to client {client.getpeername()} in room {room}")
+                    #print(f"Broadcasted data to client {client.getpeername()} in room {room}")
                 except:
                     pass
 
@@ -57,16 +59,22 @@ class audioServer:
         while 1:
             try:
                 data = c.recv(1024)
-                if data.startswith(b"join:"):
-                    room = data.split(b":")[1].decode()
+                #print(data.decode())
+                if data.startswith(b"join"):
+                    room = data.split(b" ")[1].decode()
                     if room not in self.rooms:
                         self.rooms[room] = []
+                        print(f'Room {room} created')
                     self.rooms[room].append(c)
                     print(f"Client {addr} has joined room {room}")
-                elif data.startswith(b"leave:"):
-                    room = data.split(b":")[1].decode()
+                elif data.startswith(b"leave"):
+                    room = data.split(b" ")[1].decode()
                     self.rooms[room].remove(c)
-                    room = None
+                    print(f'Client {addr} has left room {room}')
+                    if not self.rooms[room]:
+                        del self.rooms[room]
+                        print(f'Room {room} deleted')
+                        room = None
                 else:
                     if room is not None:
                         #pcm_data = self.decoder.decode(data, 960)
@@ -74,14 +82,23 @@ class audioServer:
 
             except socket.error:
                 c.close()
-                if room is not None:
-                    self.rooms[room].remove(c)
+                # if room is not None and c in self.rooms[room]:
+                #     self.rooms[room].remove(c)
+                print(f'Client {addr} disconnected')
+                break
+
+            # finally:
+            #     c.close()
+            #     if room is not None:
+            #         self.rooms[room].remove(c)
+            #     print(f'Client {addr} disconnected')
 
     def close(self):
         self.running = False
         for c in self.connections:
             c.close()
         self.s.close()
+        print('Server stopped')
 
 
 server = audioServer()

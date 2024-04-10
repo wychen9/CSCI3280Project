@@ -2,7 +2,7 @@ import socket
 import threading
 import pyaudio
 import time
-# import opuslib
+#import opuslib
 
 class Client():
     def __init__(self, target_ip, target_port):
@@ -59,6 +59,7 @@ class Client():
 
     def leave_room(self, room):
         self.s.sendall(("leave " + room).encode())
+        self.stop()
 
     def send_data_to_server(self):
         while self.running:
@@ -112,7 +113,8 @@ def test():
                 print("Please start the client first.")
             else:
                 client.leave_room(room)
-                client.stop()
+                #client.stop()
+                break
         elif command in ["open mic", "close mic"]:
             if client is None:
                 print("Please start the client first.")
@@ -149,7 +151,7 @@ def control(cmd):
             print("Please start the client first.")
         else:
             client.leave_room(room)
-            client.stop()
+            #client.stop()
     elif command in ["open mic", "close mic", "exit"]:
         if client is None:
             print("Please start the client first.")
