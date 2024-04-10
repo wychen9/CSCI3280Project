@@ -1,8 +1,10 @@
 import tkinter as tk
 import MemberEventHandler
 import audio_client
-import multiUsersRecorder
+from recording_client import RecordingClient
 from tkinter import messagebox
+import tkinter.filedialog as filedialog
+
 
 root, roomTopLevel = None, None
 client, memberList = None, None
@@ -81,24 +83,29 @@ def MuteOrUnmute():
 # TODO: Start or stop recording
 # --------------------------------------------------------------
 def StartOrStopRecord():
-    global record_var, status_var, chatRoomRecorder
+    global record_var, status_var
     if record_var.get() == "Start Record":
         record_var.set("Stop Record")
         status_var.set("Recording...")
-        chatRoomRecorder.start_recording(room_name)
+        recording_client.start_recording()
     else:
         record_var.set("Start Record")
         status_var.set("")
-        chatRoomRecorder.stop_recording(room_name)
+        recording_client.stop_and_upload_recording()
+    
 
 # --------------------------------------------------------------
 # TODO: Download recording file
 # --------------------------------------------------------------
 def downloadRecording():
-    global chatRoomRecorder
-    print("Download recording")
-    chatRoomRecorder.get_recording_files(room_name)
-    messagebox.showinfo("Hint", "Recording files have been downloaded to the root folder.")
+    file_name = filedialog.askopenfilename()
+    if file_name:
+        recording_client.download_recording(file_name)
+        messagebox.showinfo("Hint", f"Recording file {file_name} has been downloaded.")
+    else:
+        messagebox.showwarning("Warning", "No file selected.")
+    
+
 
 # def startHandler(event):
 #     global memberHandler, isFirst
@@ -118,8 +125,10 @@ def Quit():
     roomTopLevel.destroy()
 
 def createGUI(r, c, roomName, name, Handler, chatRecorder):
+    global recording_client
     global root, client, room_name, member_canvas, member_scorll_frame, roomTopLevel, memberList, curMembername, memberHandler, chatRoomRecorder
     global mute_var, record_var, status_var
+    recording_client = RecordingClient(room_name)
     # set global variables
     root = r
     client = c
