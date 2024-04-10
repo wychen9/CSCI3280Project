@@ -55,10 +55,10 @@ class Client():
                 pass
 
     def join_room(self, room):
-        self.s.sendall(("join" + room).encode())
+        self.s.sendall(("join " + room).encode())
 
     def leave_room(self, room):
-        self.s.sendall(("leave" + room).encode())
+        self.s.sendall(("leave " + room).encode())
 
     def send_data_to_server(self):
         while self.running:
