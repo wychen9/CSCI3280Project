@@ -2,25 +2,24 @@ import os
 import socket
 from multiUsersRecorder import ChatRoomRecorder
 
-SERVER_IP = '127.0.0.1'
-SERVER_PORT = 8888
+SERVER_IP = '10.13.79.153'
+SERVER_PORT = 12345
 
 class RecordingClient:
-    def __init__(self, room_name):
+    def __init__(self, room_name, ip = '127.0.0.1'):
         self.room_name = room_name
         self.chat_room_recorder = ChatRoomRecorder()
         self.sock = self.connect_to_server()
+        self.ip = ip
     
     def connect_to_server(self):
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.connect((SERVER_IP, SERVER_PORT))
+            sock.connect((self.ip, SERVER_PORT))
             return sock
         except Exception as e:
             print(f"error in connecting to the server: {e}")
             return None
-    
-    
     
     def start_recording(self):
         # start recording
