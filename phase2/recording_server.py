@@ -33,29 +33,31 @@ class RecordingServer:
         with client:
             while True:
                 try:
-                    data = client.recv(4096)
-                    if not data:
-                        break
+                    # Receive header first
+                    header = b""
+                    while True:
+                        byte = client.recv(1)
+                        if byte == b"\n":  # End of header
+                            break
+                        if not byte:
+                            return  # Connection closed
+                        header += byte
+                    decoded_header = header.decode('utf-8')
+                    command, room_name, file_name, file_size_str = decoded_header.split('#', 3)
+                    file_size = int(file_size_str)
 
-                    decoded_data = data.decode('utf-8')
-                    command, room_name, file_name = decoded_data.split('#', 2)
                     if command == 'u':
-                        # handle file upload
-                        self.receive_file(client, room_name, file_name)
+                        self.receive_file(client, room_name, file_name, file_size)
                     elif command == 'd':
-                        # Handle file download
                         self.send_file(client, room_name, file_name)
                     elif command == 'l':
-                        # Handle listing files
                         self.list_files(client, room_name)
 
                 except Exception as e:
                     print(f"An error occurred: {e}")
                     break
 
-    def receive_file(self, client, room_name, file_name):
-       
-        file_size = int(client.recv(4096).decode())
+    def receive_file(self, client, room_name, file_name, file_size):
         received_size = 0
         room_directory = os.path.join(DIRECTORY, room_name)
         if not os.path.exists(room_directory):
