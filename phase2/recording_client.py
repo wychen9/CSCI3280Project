@@ -9,8 +9,9 @@ class RecordingClient:
     def __init__(self, room_name, ip = '127.0.0.1'):
         self.room_name = room_name
         self.chat_room_recorder = ChatRoomRecorder()
-        self.sock = self.connect_to_server()
         self.ip = ip
+        self.sock = self.connect_to_server()
+        
     
     def connect_to_server(self):
         try:
