@@ -20,7 +20,7 @@ m1 = memberList[ind]
 c1 = Room_Client(m1, ip)
 # need to know the ip address of the server
 audio_client.control("start "+ ip2 +" 9808")
-recording_client = RecordingClient(m1.get_room_name())
+recording_client = RecordingClient(c1.get_room_name())
 eventHandler = EventHandler.EventHandler()
 homepageGUI = HomepageGUI.HomepageGUI(eventHandler, c1)
 eventHandler.setHomepageGUI(homepageGUI)
