@@ -92,7 +92,7 @@ def MuteOrUnmute():
 # TODO: Start or stop recording
 # --------------------------------------------------------------
 def StartOrStopRecord():
-    global record_var, status_var
+    global record_var, status_var, recording_client
     if record_var.get() == "Start Record":
         record_var.set("Stop Record")
         status_var.set("Recording...")
@@ -107,6 +107,7 @@ def StartOrStopRecord():
 # TODO: Download recording file
 # --------------------------------------------------------------
 def downloadRecording():
+    global recording_client
     file_name = filedialog.askopenfilename()
     if file_name:
         recording_client.download_recording(file_name)
