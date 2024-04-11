@@ -39,8 +39,4 @@ Deadline: Feb 29th, 2024
 Deadline: April 11th, 2024
 * a progress report in the form of a maximum 6-page PDF file (named CSCI3280GroupXProjectReport.pdf)
 * the latest version of your codes, including a README file to introduce how to run your program
-  
-## Enhanced Features (30%)
-
-## Demonstration & Report(10%)
 
