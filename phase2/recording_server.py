@@ -2,8 +2,8 @@ import socket
 import threading
 import os
 
-ip = '127.0.0.1'
-port = 8888
+ip = '10.13.79.153'
+port = 12345
 DIRECTORY = "shared_recordings"
 
 class RecordingServer:
