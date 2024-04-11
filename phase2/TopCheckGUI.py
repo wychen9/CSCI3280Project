@@ -51,7 +51,7 @@ def Cancel():
     global topbox
     topbox.destroy()
 
-def TopCheckBox(r, boxTitle, c, r_ip, roomName=None):
+def TopCheckBox(r, boxTitle, c, r_ip, roomName):
     global root, topbox, name_entry, room_name_entry, room_name, title, client, recorder_ip
     title = boxTitle
     client = c

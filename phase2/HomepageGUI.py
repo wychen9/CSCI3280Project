@@ -41,13 +41,13 @@ class HomepageGUI:
 
     def JoinRoom(self): 
         roomName = self.eventHandler.getChoosenRoom()
-        TopCheckGUI.TopCheckBox(self.root, "Join", self.client, roomName, self.recorder_ip)
+        TopCheckGUI.TopCheckBox(self.root, "Join", self.client, self.recorder_ip, roomName)
         self.roomListFrame.pack_forget()
         self.homepageFrame.pack(fill=tk.BOTH, expand=True)
         self.homepageFrame.update_idletasks()
 
     def CreateCheck(self):
-        TopCheckGUI.TopCheckBox(self.root, "Create", self.client, None, self.recorder_ip)
+        TopCheckGUI.TopCheckBox(self.root, "Create", self.client, self.recorder_ip, None)
 
     def JoinList(self):
         self.homepageFrame.pack_forget()
