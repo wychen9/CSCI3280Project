@@ -1,7 +1,7 @@
 import tkinter as tk
 import MemberEventHandler
 import audio_client
-from recording_client import RecordingClient
+# from recording_client import RecordingClient
 from tkinter import messagebox
 import tkinter.filedialog as filedialog
 
@@ -134,11 +134,10 @@ def Quit():
     print("Stop Handler")
     roomTopLevel.destroy()
 
-def createGUI(r, c, roomName, name, Handler, chatRecorder):
+def createGUI(r, c, roomName, name, Handler, chatRecorder, r_client):
     global recording_client, member_in_room_count
-    global root, client, room_name, member_canvas, member_scorll_frame, roomTopLevel, memberList, curMembername, memberHandler, chatRoomRecorder
+    global root, client, room_name, member_canvas, member_scorll_frame, roomTopLevel, memberList, curMembername, memberHandler, chatRoomRecorder, recording_client
     global mute_var, record_var, status_var
-    recording_client = RecordingClient(room_name)
     # set global variables
     root = r
     client = c
@@ -146,6 +145,7 @@ def createGUI(r, c, roomName, name, Handler, chatRecorder):
     curMembername = name
     memberHandler = Handler
     chatRoomRecorder = chatRecorder
+    recording_client =  r_client
 
     roomTopLevel = tk.Toplevel(root)
     # roomTopLevel.bind("<Map>", startHandler)

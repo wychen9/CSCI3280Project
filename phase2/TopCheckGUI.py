@@ -3,7 +3,7 @@ import RoomMeetingGUI
 import MemberEventHandler
 import audio_client
 import multiUsersRecorder
-import recording_client
+from recording_client import RecordingClient
 
 topbox = None
 name_entry = None
@@ -20,7 +20,7 @@ def JoinRoom():
     name = client.mem.getName()
     memberHandler = MemberEventHandler.EventHandler()
     chatRoomRecorder = multiUsersRecorder.ChatRoomRecorder()
-    recording_client = recording_client.RecordingClient(room_name)
+    recording_client = RecordingClient(room_name)
     if title == "Create":
         print("Room "+ room_name + " Created!")
         print("Room Creator: " + name)
@@ -28,7 +28,7 @@ def JoinRoom():
         audio_client.control("join "+ room_name)
         audio_client.control("open mic")
         topbox.destroy()
-        RoomMeetingGUI.createGUI(root, client, room_name, name, memberHandler, chatRoomRecorder)
+        RoomMeetingGUI.createGUI(root, client, room_name, name, memberHandler, chatRoomRecorder, recording_client)
         memberHandler.start()
         print("Start Handler")
         
@@ -41,7 +41,7 @@ def JoinRoom():
         audio_client.control("join "+ room_name)
         audio_client.control("open mic")
         topbox.destroy()
-        RoomMeetingGUI.createGUI(root, client, room_name, name, memberHandler, chatRoomRecorder)
+        RoomMeetingGUI.createGUI(root, client, room_name, name, memberHandler, chatRoomRecorder, recording_client)
         memberHandler.start()
         print("Start Handler")
         
