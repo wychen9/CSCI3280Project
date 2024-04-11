@@ -88,4 +88,12 @@ class RecordingServer:
         self.sock.close()
         print("server has been shut down.")
 
+if __name__ == '__mian__':
+    server = RecordingServer()
+    try:
+        server.server_thread.join()
+    except KeyboardInterrupt:
+            server.shutdown()
+
+
 
