@@ -13,7 +13,7 @@ if(len(sys.argv)>2): ip = sys.argv[2] # need ip inpu if available
 m1 = memberList[ind]
 c1 = Room_Client(m1, ip)
 # need to know the ip address of the server
-audio_client.control("start 10.13.79.153 9808")
+audio_client.control("start 127.0.0.1 9808")
 eventHandler = EventHandler.EventHandler()
 homepageGUI = HomepageGUI.HomepageGUI(eventHandler, c1)
 eventHandler.setHomepageGUI(homepageGUI)

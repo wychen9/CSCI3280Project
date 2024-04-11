@@ -13,14 +13,18 @@ curMembername, room_name, isFirst = None, None, True
 member_canvas, member_scorll_frame = None, None
 mute_var, record_var, status_var = None, None, None
 circle_canvas, circle = None, None
+member_in_room_count = 0
 
 def createMember(name, i, j, isCurrent=False):
     global member_canvas, member_scorll_frame, circle_canvas, circle
     member_frame = tk.Frame(member_scorll_frame, width=280, height=220, bg="grey", borderwidth=0, highlightthickness=0)
     member_frame.grid(row=i, column=j, padx=30, pady=10)
-    video_frame = tk.Frame(member_frame, width=280, height=180, bg="green", borderwidth=0, highlightthickness=0)
-    video_frame.pack(side=tk.TOP, fill=tk.X)
-    video_frame.pack_propagate(False)
+    # video_frame = tk.Frame(member_frame, width=280, height=180, bg="green", borderwidth=0, highlightthickness=0)
+    # video_frame.pack(side=tk.TOP, fill=tk.X)
+    # video_frame.pack_propagate(False)
+    video_label = tk.Label(member_frame, width=20, height=7, text=name, font=("Arial", 25), bg="#A9D18E", fg="black")
+    video_label.pack(side=tk.TOP, fill=tk.X)
+    video_label.pack_propagate(False)
     status_frame = tk.Frame(member_frame, width=280, height=40, bg="#ffffff", borderwidth= 0, highlightthickness=0)
     status_frame.pack(side=tk.BOTTOM, fill=tk.X)
     status_frame.pack_propagate(False)
@@ -36,10 +40,14 @@ def createMember(name, i, j, isCurrent=False):
     member_canvas.config(scrollregion=member_canvas.bbox("all"))
 
 def newMember(member):
-    global client, room_name
-    c = client.get_room_count(room_name)
-    i = c // 3
-    j = c % 3
+    global client, room_name, member_in_room_count
+    # c = client.get_room_count(room_name)
+    # i = c // 3
+    # j = c % 3
+    i = member_in_room_count // 3
+    j = member_in_room_count % 3
+    print("i, j: ", i, j)
+    member_in_room_count += 1
     createMember(member.name, i, j)
 
 def leaveMember(member):
@@ -125,7 +133,7 @@ def Quit():
     roomTopLevel.destroy()
 
 def createGUI(r, c, roomName, name, Handler, chatRecorder):
-    global recording_client
+    global recording_client, member_in_room_count
     global root, client, room_name, member_canvas, member_scorll_frame, roomTopLevel, memberList, curMembername, memberHandler, chatRoomRecorder
     global mute_var, record_var, status_var
     recording_client = RecordingClient(room_name)
@@ -198,6 +206,8 @@ def createGUI(r, c, roomName, name, Handler, chatRecorder):
     # --------------------------------------------------------------
     memberList = client.get_member_list(roomName)
     createMember(memberList[-1], 0, 0, True)
+    member_in_room_count += 1
     # assignMembers()
+
 
     roomTopLevel.protocol("WM_DELETE_WINDOW", Quit)
