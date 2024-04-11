@@ -12,15 +12,16 @@ room_name = None
 title = None
 client = None
 root = None
+recorder_ip = None
 
 def JoinRoom():
-    global root, topbox, name_entry, room_name_entry, room_name, title, client
+    global root, topbox, name_entry, room_name_entry, room_name, title, client, recorder_ip
     if not room_name:
         room_name = room_name_entry.get()
     name = client.mem.getName()
     memberHandler = MemberEventHandler.EventHandler()
     chatRoomRecorder = multiUsersRecorder.ChatRoomRecorder()
-    recording_client = RecordingClient(room_name)
+    recording_client = RecordingClient(room_name, recorder_ip)
     if title == "Create":
         print("Room "+ room_name + " Created!")
         print("Room Creator: " + name)
@@ -50,12 +51,13 @@ def Cancel():
     global topbox
     topbox.destroy()
 
-def TopCheckBox(r, boxTitle, c, roomName=None):
-    global root, topbox, name_entry, room_name_entry, room_name, title, client
+def TopCheckBox(r, boxTitle, c, r_ip, roomName=None):
+    global root, topbox, name_entry, room_name_entry, room_name, title, client, recorder_ip
     title = boxTitle
     client = c
     root = r
     room_name = roomName
+    recorder_ip = r_ip
     topbox = tk.Toplevel(root)
     topbox.title(boxTitle)
     topbox.geometry("200x150")

@@ -5,7 +5,7 @@ from tkinter import PhotoImage
 
 class HomepageGUI:
 
-    def __init__(self, EventHandler, client):
+    def __init__(self, EventHandler, client, recorder_ip):
         self.eventHandler = EventHandler
         self.client = client
         self.homepageFrame = None
@@ -13,6 +13,7 @@ class HomepageGUI:
         self.rooms_frame = None
         self.list_canvas = None
         self.root = None
+        self.recorder_ip = recorder_ip
     
     def clickRoom(self, event, roomName, rooms_frame):
         self.eventHandler.setChoosenRoom(roomName)
@@ -40,13 +41,13 @@ class HomepageGUI:
 
     def JoinRoom(self): 
         roomName = self.eventHandler.getChoosenRoom()
-        TopCheckGUI.TopCheckBox(self.root, "Join", self.client, roomName)
+        TopCheckGUI.TopCheckBox(self.root, "Join", self.client, roomName, self.recorder_ip)
         self.roomListFrame.pack_forget()
         self.homepageFrame.pack(fill=tk.BOTH, expand=True)
         self.homepageFrame.update_idletasks()
 
     def CreateCheck(self):
-        TopCheckGUI.TopCheckBox(self.root, "Create", self.client)
+        TopCheckGUI.TopCheckBox(self.root, "Create", self.client, None, self.recorder_ip)
 
     def JoinList(self):
         self.homepageFrame.pack_forget()
