@@ -27,6 +27,7 @@ class Room_Server():
             else: self.ip =ip
         else:
             self.ip = ip
+        # self.ip = ip
         self.s.bind((self.ip, port))
         self.s.listen(1)
 

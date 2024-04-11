@@ -33,14 +33,14 @@ class Room_Client():
 
         # connect to server
         self.s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-        while 1:
-            try:
-                self.s.connect((self.ip,self.port))
-                break
-            except Exception as e:
-                continue
-                # print("Couldn't connect to server")
-        
+        # while 1:
+        #     try:
+        #         self.s.connect((self.ip,self.port))
+        #         break
+        #     except Exception as e:
+        #         continue
+        #         # print("Couldn't connect to server")
+        self.s.connect((self.ip,self.port))
         self.s.settimeout(0.0)
         ind_msg = self.mem.id + '@'
         self.s.send(str.encode(ind_msg))
