@@ -19,7 +19,7 @@ Language: Python
 2. python room_server.py
 3. python main.py [client#] [room_server_ip] [audio_server_ip]
 
-## Basic Requirements: Phase I (30%)
+## Basic Requirements: Phase I
 * GUI (SHEN Zixuan)
 * Sound recording & saving (WEI Youlin)
 * Sound playback with speed control (JIA Tongxi)
@@ -30,7 +30,7 @@ Deadline: Feb 29th, 2024
 * A video demonstration, named CSCI3280GroupXProjectDemo.mp4
 * Compressed folder of source codes, named CSCI3280GroupXProjectCode_1.zip
 
-## Basic Requirements: Phase II (30%)
+## Basic Requirements: Phase II
 * GUI (SHEN Zixuan)
 * Chat room creation & joining (CHEN Weiyu)
 * Multi-user voice chat (JIA Tongxi)
