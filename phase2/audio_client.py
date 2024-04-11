@@ -17,9 +17,9 @@ class Client():
                 print("Couldn't connect to server")
 
         chunk_size = 1024
-        audio_format = pyaudio.paInt16
+        audio_format = pyaudio.paFloat32
         channels = 1
-        rate = 20000
+        rate = 44100
 
         self.p = pyaudio.PyAudio()
         self.playing_stream = self.p.open(format=audio_format, channels=channels, rate=rate, output=True,
@@ -35,9 +35,9 @@ class Client():
 
     def init_audio(self):
         chunk_size = 1024
-        audio_format = pyaudio.paInt16
+        audio_format = pyaudio.paFloat32
         channels = 1
-        rate = 20000
+        rate = 44100
         self.p = pyaudio.PyAudio()
         self.playing_stream = self.p.open(format=audio_format, channels=channels, rate=rate, output=True,
                                           frames_per_buffer=chunk_size)
