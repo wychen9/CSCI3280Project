@@ -37,7 +37,7 @@ class RecordingClient:
                     # send upload command and file metadata 
                     file_name = os.path.basename(recording_file)
                     file_size = os.path.getsize(recording_file)
-                    header = f"u#{self.room_name}#{file_name}#{file_size}".encode()
+                    header = f"u#{self.room_name}#{file_name}#{file_size}\n".encode()
                     self.sock.sendall(header)
                     with open(recording_file, 'rb') as f:
                         while True:
