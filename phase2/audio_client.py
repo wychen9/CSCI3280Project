@@ -60,7 +60,7 @@ class Client():
 
     def leave_room(self, room):
         self.s.sendall(("leave " + room).encode())
-        self.stop()
+        #self.stop()
 
     def send_data_to_server(self):
         while self.running:
