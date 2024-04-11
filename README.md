@@ -10,6 +10,8 @@ Group 3
 
 Language: Python
 
+## How To Execute Our Program
+
 ## Basic Requirements: Phase I (30%)
 * GUI (SHEN Zixuan)
 * Sound recording & saving (WEI Youlin)
@@ -34,3 +36,4 @@ Deadline: April 11th, 2024
 ## Enhanced Features (30%)
 
 ## Demonstration & Report(10%)
+
