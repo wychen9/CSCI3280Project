@@ -51,7 +51,7 @@ def newMember(member):
     createMember(member.name, i, j)
 
 def leaveMember(member):
-    global memberList, room_name
+    global memberList, room_name, member_in_room_count
     print("Leave Member Before: ", memberList)
     memberList = client.get_member_list(room_name)
     for i in range(len(memberList)):
@@ -59,6 +59,7 @@ def leaveMember(member):
             memberList.pop(i)
             break
     print("Leave Member: ", memberList)
+    member_in_room_count = len(memberList)
     assignMembers()
 
 def assignMembers():

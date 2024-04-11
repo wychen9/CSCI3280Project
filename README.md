@@ -12,11 +12,12 @@ Language: Python
 
 ## Dependency
 - socket
+- pyaudio
 
 ## Execution Step
 1. python audioserver.py
 2. python room_server.py
-3. python main.py [client#] [ip]
+3. python main.py [client#] [room_server_ip] [audio_server_ip]
 
 ## Basic Requirements: Phase I (30%)
 * GUI (SHEN Zixuan)

@@ -18,9 +18,10 @@ Tech Stack: Python
 ---
 ## Dependency
 - socket
+- pyaudio
 
 ## run
 1. python audioserver.py
 2. python room_server.py
-3. python main.py [client#] [ip]
+3. python main.py [client#] [room_server_ip] [audio_server_ip]
 
