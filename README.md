@@ -10,7 +10,13 @@ Group 3
 
 Language: Python
 
-## How To Execute Our Program
+## Dependency
+- socket
+
+## Execution Step
+1. python audioserver.py
+2. python room_server.py
+3. python main.py [client#] [ip]
 
 ## Basic Requirements: Phase I (30%)
 * GUI (SHEN Zixuan)
